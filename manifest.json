@@ -1,0 +1,27 @@
+{
+  "name": "GeoQuiz · Matemáticas 11",
+  "short_name": "GeoQuiz",
+  "description": "Quiz interactivo de Geometría tipo SABER 11 para grado 11",
+  "start_url": "./quiz-matematicas.html",
+  "display": "standalone",
+  "background_color": "#060d1a",
+  "theme_color": "#00e5ff",
+  "orientation": "portrait-primary",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education"],
+  "screenshots": []
+}

@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0f172a">
+<meta name="description" content="Quiz interactivo de Geometría - SABER 11">
+<title>GeoQuiz · Matemáticas 11</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="GeoQuiz">
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(r => console.log('SW registrado:', r.scope))
+        .catch(e => console.log('SW error:', e));
+    });
+  }
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #060d1a;
+    --surface: #0f1f35;
+    --surface2: #162840;
+    --accent: #00e5ff;
+    --accent2: #ff6b35;
+    --accent3: #a8ff3e;
+    --text: #e2eaf5;
+    --muted: #5a7a99;
+    --correct: #a8ff3e;
+    --wrong: #ff4757;
+    --border: rgba(0,229,255,0.15);
+    --glow: 0 0 30px rgba(0,229,255,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Background grid */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Glowing orbs */
+  body::after {
+    content: '';
+    position: fixed;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(0,229,255,0.06) 0%, transparent 70%);
+    top: -200px; right: -200px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), #0080ff);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    box-shadow: var(--glow);
+  }
+
+  .logo-text {
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--accent); }
+
+  .badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 20px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── PROGRESS ── */
+  .progress-bar {
+    background: var(--surface);
+    border-radius: 4px;
+    height: 6px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+    box-shadow: 0 0 12px rgba(0,229,255,0.5);
+  }
+
+  /* ── PHASE CARDS ── */
+  .phase {
+    display: none;
+    animation: fadeUp 0.5s ease forwards;
+  }
+
+  .phase.active { display: block; }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── WELCOME ── */
+  .welcome-hero {
+    text-align: center;
+    padding: 48px 20px;
+  }
+
+  .welcome-icon {
+    font-size: 64px;
+    margin-bottom: 24px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .welcome-hero h1 {
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, var(--text), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .welcome-hero p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0 auto 32px;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 40px;
+  }
+
+  .tag {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+
+  /* ── BUTTONS ── */
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: #000;
+    font-family: 'Syne', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 16px 36px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+  }
+
+  .btn-primary:hover {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(0,229,255,0.3);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: var(--surface);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ── CONTEXT CARD ── */
+  .context-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .context-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+  }
+
+  .context-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .context-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .context-text {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  /* ── MAP SVG ── */
+  .map-container {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ── QUESTION CARD ── */
+  .question-number {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .question-text {
+    font-size: clamp(16px, 2.5vw, 20px);
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  /* ── ROUTES GRID ── */
+  .routes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 600px) {
+    .routes-grid { grid-template-columns: 1fr; }
+  }
+
+  .route-card {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 16px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .route-card:hover {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+    transform: translateY(-3px);
+  }
+
+  .route-card.selected {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.08);
+    box-shadow: 0 0 20px rgba(0,229,255,0.15);
+  }
+
+  .route-card.correct-anim {
+    border-color: var(--correct);
+    background: rgba(168,255,62,0.08);
+    box-shadow: 0 0 20px rgba(168,255,62,0.2);
+  }
+
+  .route-card.wrong-anim {
+    border-color: var(--wrong);
+    background: rgba(255,71,87,0.08);
+  }
+
+  .route-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .route-length {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-top: 10px;
+    opacity: 0;
+    transition: all 0.3s;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .route-length.revealed { opacity: 1; }
+
+  /* ── OPTIONS ── */
+  .options-list {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .option-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: left;
+    width: 100%;
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    border-color: var(--accent);
+    background: rgba(0,229,255,0.05);
+  }
+
+  .option-btn.selected { border-color: var(--accent); background: rgba(0,229,255,0.08); }
+  .option-btn.correct  { border-color: var(--correct)!important; background: rgba(168,255,62,0.1)!important; }
+  .option-btn.wrong    { border-color: var(--wrong)!important; background: rgba(255,71,87,0.1)!important; }
+  .option-btn:disabled { cursor: default; }
+
+  .option-letter {
+    width: 34px; height: 34px;
+    min-width: 34px;
+    border-radius: 8px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    border: 1px solid var(--border);
+    transition: all 0.2s;
+  }
+
+  .option-btn.correct .option-letter { background: var(--correct); color: #000; border-color: var(--correct); }
+  .option-btn.wrong   .option-letter { background: var(--wrong); color: #fff; border-color: var(--wrong); }
+
+  /* ── FEEDBACK ── */
+  .feedback-box {
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: none;
+    animation: fadeUp 0.4s ease;
+    border: 1px solid;
+  }
+
+  .feedback-box.show { display: flex; gap: 16px; align-items: flex-start; }
+  .feedback-box.correct-fb { background: rgba(168,255,62,0.08); border-color: rgba(168,255,62,0.3); }
+  .feedback-box.wrong-fb   { background: rgba(255,71,87,0.08); border-color: rgba(255,71,87,0.3); }
+
+  .feedback-icon { font-size: 28px; }
+
+  .feedback-content h3 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .feedback-box.correct-fb h3 { color: var(--correct); }
+  .feedback-box.wrong-fb   h3 { color: var(--wrong); }
+
+  .feedback-content p { font-size: 14px; line-height: 1.6; color: #b0c4d8; }
+
+  /* ── HINT ── */
+  .hint-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: 1px dashed rgba(255,107,53,0.4);
+    color: var(--accent2);
+    font-family: 'Syne', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .hint-btn:hover { background: rgba(255,107,53,0.08); border-style: solid; }
+
+  .hint-box {
+    background: rgba(255,107,53,0.06);
+    border: 1px solid rgba(255,107,53,0.25);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 14px;
+    color: #f0a080;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    display: none;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .hint-box.show { display: block; }
+
+  /* ── STEP INDICATOR ── */
+  .steps {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 28px;
+  }
+
+  .step {
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--surface2);
+    transition: background 0.3s;
+  }
+
+  .step.done { background: var(--accent3); }
+  .step.current { background: var(--accent); }
+
+  /* ── EXPLANATION PHASE ── */
+  .explanation-section {
+    margin-bottom: 24px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .calc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .calc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    text-align: center;
+  }
+
+  .calc-card .route-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .calc-card .calc-formula {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+
+  .calc-card .calc-result {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--accent3);
+    font-family: 'Space Mono', monospace;
+  }
+
+  .calc-card.highlight-card {
+    border-color: rgba(168,255,62,0.4);
+    background: rgba(168,255,62,0.05);
+  }
+
+  .calc-card.highlight-card .calc-result { color: var(--correct); }
+
+  /* ── SCORE / RESULT ── */
+  .result-hero {
+    text-align: center;
+    padding: 40px 20px;
+  }
+
+  .score-ring {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: conic-gradient(var(--accent3) var(--pct), var(--surface2) 0);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 28px;
+    position: relative;
+  }
+
+  .score-ring::before {
+    content: '';
+    position: absolute;
+    inset: 12px;
+    background: var(--bg);
+    border-radius: 50%;
+  }
+
+  .score-number {
+    position: relative;
+    z-index: 1;
+    font-family: 'Space Mono', monospace;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--accent3);
+  }
+
+  .result-title {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, var(--text), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .result-sub {
+    color: var(--muted);
+    font-size: 16px;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+  }
+
+  .stat-val {
+    font-family: 'Space Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    display: block;
+  }
+
+  .stat-lbl {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  /* ── COMPETENCY TAG ── */
+  .competency-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+
+  .comp-icon { font-size: 22px; }
+  .comp-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
+  .comp-value { color: var(--text); font-weight: 600; font-size: 14px; }
+
+  /* ── NAV ACTIONS ── */
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  /* ── STEP 2 INTERACTIVE ── */
+  .interactive-note {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-style: italic;
+  }
+
+  /* Floating particles */
+  .particles {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--accent);
+    border-radius: 50%;
+    opacity: 0;
+    animation: particle-rise linear infinite;
+  }
+
+  @keyframes particle-rise {
+    0%   { opacity: 0; transform: translateY(0) scale(1); }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.2; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(0); }
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip .tip {
+    visibility: hidden;
+    background: #1a2e46;
+    color: var(--text);
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    position: absolute;
+    bottom: 130%;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    border: 1px solid var(--border);
+    z-index: 10;
+  }
+
+  .tooltip:hover .tip { visibility: visible; opacity: 1; }
+
+  @media (max-width: 500px) {
+    .routes-grid { grid-template-columns: 1fr; }
+    .actions { flex-direction: column; }
+    .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="logo-icon">📐</div>
+      <div class="logo-text">Geo<span>Quiz</span></div>
+    </div>
+    <div class="badge">SABER 11 · Matemáticas</div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-bar">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+
+  <!-- STEP INDICATORS -->
+  <div class="steps">
+    <div class="step" id="s1"></div>
+    <div class="step" id="s2"></div>
+    <div class="step" id="s3"></div>
+    <div class="step" id="s4"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PHASE 0: BIENVENIDA
+  ══════════════════════════════════════ -->
+  <div class="phase active" id="phase0">
+    <div class="welcome-hero">
+      <span class="welcome-icon">🗺️</span>
+      <h1>Geometría en la<br>Ciudad Real</h1>
+      <p>Practica con una pregunta tipo SABER 11 sobre rutas, distancias y razonamiento espacial. ¡Demuestra tu talento!</p>
+      <div class="tag-list">
+        <span class="tag">Geometría</span>
+        <span class="tag">Interpretación</span>
+        <span class="tag">Nivel 3</span>
+        <span class="tag">Grado 11</span>
+      </div>
+      <button class="btn-primary" onclick="goPhase(1)">
+        Comenzar quiz ➜
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PHASE 1: CONTEXTO + MAPA
+  ══════════════════════════════════════ -->
+  <div class="phase" id="phase1">
+    <div class="context-label">📖 Contexto del problema</div>
+
+    <div class="context-card">
+      <div class="context-label">Situación</div>
+      <p class="context-text">
+        En la figura se presenta un mapa de la vista aérea de las calles de una parte de una ciudad.
+        Se muestran tres puntos <strong>A</strong>, <strong>B</strong> y <strong>C</strong>, y la medida de dos segmentos sobre el mapa.
+        Cada uno de los cuadriláteros ilustrados corresponde a un <strong>cuadrado</strong>.
+      </p>
+    </div>
+
+    <div class="map-container">
+      <!-- MAPA SVG representativo -->
+      <svg viewBox="0 0 380 300" width="100%" style="max-width:460px" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse" patternTransform="rotate(45 190 150)">
+            <rect width="40" height="40" fill="#1a2e46"/>
+            <rect x="4" y="4" width="32" height="32" fill="#0f1f35"/>
+          </pattern>
+        </defs>
+        <!-- Background -->
+        <rect width="380" height="300" fill="#0d1b2e" rx="8"/>
+        <!-- City grid rotated 45° -->
+        <g transform="translate(190,150) rotate(45) translate(-190,-150)">
+          <!-- Manzanas -->
+          <rect x="50"  y="50"  width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="120" y="50"  width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="190" y="50"  width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="260" y="50"  width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="50"  y="120" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="120" y="120" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="190" y="120" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="260" y="120" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="50"  y="190" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="120" y="190" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="190" y="190" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+          <rect x="260" y="190" width="60" height="60" fill="#162840" stroke="#0d1b2e" stroke-width="2" rx="2"/>
+        </g>
+        <!-- Segmento A→intermedio 10cm -->
+        <line x1="72" y1="160" x2="157" y2="95" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Segmento intermedio→B 15cm -->
+        <line x1="157" y1="95" x2="278" y2="185" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round"/>
+        <!-- Labels segmentos -->
+        <text x="100" y="122" fill="#00e5ff" font-size="12" font-family="Space Mono,monospace" font-weight="700">10 cm</text>
+        <text x="205" y="130" fill="#00e5ff" font-size="12" font-family="Space Mono,monospace" font-weight="700">15 cm</text>
+        <!-- Punto A -->
+        <circle cx="72" cy="160" r="7" fill="#ff6b35" stroke="#0d1b2e" stroke-width="2"/>
+        <text x="54" y="156" fill="#ff6b35" font-size="14" font-family="Syne,sans-serif" font-weight="800">A</text>
+        <!-- Punto C -->
+        <circle cx="200" cy="200" r="7" fill="#a8ff3e" stroke="#0d1b2e" stroke-width="2"/>
+        <text x="207" y="217" fill="#a8ff3e" font-size="14" font-family="Syne,sans-serif" font-weight="800">C</text>
+        <!-- Punto B -->
+        <circle cx="278" cy="185" r="7" fill="#ff6b35" stroke="#0d1b2e" stroke-width="2"/>
+        <text x="285" y="181" fill="#ff6b35" font-size="14" font-family="Syne,sans-serif" font-weight="800">B</text>
+        <!-- Side label diag 80 -->
+        <text x="330" y="190" fill="#5a7a99" font-size="10" font-family="Space Mono,monospace" transform="rotate(-45,330,190)">DIAG. 80</text>
+        <!-- Leyenda tamaño cuadrado -->
+        <rect x="10" y="262" width="360" height="28" rx="4" fill="rgba(0,229,255,0.06)" stroke="rgba(0,229,255,0.15)" stroke-width="1"/>
+        <text x="190" y="280" text-anchor="middle" fill="#5a7a99" font-size="11" font-family="Space Mono,monospace">Cada cuadrado = 5 cm de lado</text>
+      </svg>
+    </div>
+
+    <div class="competency-bar">
+      <span class="comp-icon">🎯</span>
+      <div>
+        <div class="comp-label">Competencia evaluada</div>
+        <div class="comp-value">Interpretación y representación · Geometría genérica</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-primary" onclick="goPhase(2)">Ir a la pregunta ➜</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PHASE 2: EXPLORAR RUTAS (INTERACTIVO)
+  ══════════════════════════════════════ -->
+  <div class="phase" id="phase2">
+    <div class="question-number">Paso 1 de 2 · Exploración</div>
+    <div class="question-text">
+      Observa las tres rutas posibles de <strong>A</strong> a <strong>B</strong> en la figura 2.
+      <br>¿Cuánto mide cada una? Haz clic en cada ruta para revelar su longitud.
+    </div>
+
+    <p class="interactive-note">💡 Toca cada ruta para descubrir su longitud total.</p>
+
+    <div class="routes-grid">
+      <!-- Ruta I -->
+      <div class="route-card" id="rCard1" onclick="revealRoute(1)">
+        <div class="route-label">RUTA I</div>
+        <svg viewBox="0 0 120 90" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <rect width="120" height="90" fill="transparent"/>
+          <!-- cuadrados de fondo -->
+          <g opacity="0.4">
+            <rect x="10" y="10" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 25 25)"/>
+            <rect x="60" y="10" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 75 25)"/>
+            <rect x="35" y="35" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 50 50)"/>
+          </g>
+          <!-- Ruta I: A->C directo luego C->B directo (más cuadrados) -->
+          <polyline points="15,55 45,30 75,55 95,40" fill="none" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="55" r="5" fill="#ff6b35"/>
+          <text x="5" y="52" fill="#ff6b35" font-size="10" font-family="Syne" font-weight="700">A</text>
+          <circle cx="75" cy="55" r="5" fill="#a8ff3e"/>
+          <text x="78" y="70" fill="#a8ff3e" font-size="10" font-family="Syne" font-weight="700">C</text>
+          <circle cx="95" cy="40" r="5" fill="#ff6b35"/>
+          <text x="98" y="37" fill="#ff6b35" font-size="10" font-family="Syne" font-weight="700">B</text>
+        </svg>
+        <div class="route-length" id="rLen1">25 cm ✓</div>
+      </div>
+
+      <!-- Ruta II -->
+      <div class="route-card" id="rCard2" onclick="revealRoute(2)">
+        <div class="route-label">RUTA II</div>
+        <svg viewBox="0 0 120 90" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <rect width="120" height="90" fill="transparent"/>
+          <g opacity="0.4">
+            <rect x="10" y="10" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 25 25)"/>
+            <rect x="60" y="10" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 75 25)"/>
+            <rect x="35" y="35" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 50 50)"/>
+          </g>
+          <!-- Ruta II: más larga, rodea más cuadrados -->
+          <polyline points="15,60 30,30 65,20 95,45" fill="none" stroke="#ff6b35" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="60" r="5" fill="#ff6b35"/>
+          <text x="5" y="57" fill="#ff6b35" font-size="10" font-family="Syne" font-weight="700">A</text>
+          <circle cx="55" cy="62" r="5" fill="#a8ff3e"/>
+          <text x="58" y="78" fill="#a8ff3e" font-size="10" font-family="Syne" font-weight="700">C</text>
+          <circle cx="95" cy="45" r="5" fill="#ff6b35"/>
+          <text x="98" y="42" fill="#ff6b35" font-size="10" font-family="Syne" font-weight="700">B</text>
+        </svg>
+        <div class="route-length" id="rLen2">35 cm ✗</div>
+      </div>
+
+      <!-- Ruta III -->
+      <div class="route-card" id="rCard3" onclick="revealRoute(3)">
+        <div class="route-label">RUTA III</div>
+        <svg viewBox="0 0 120 90" width="100%" xmlns="http://www.w3.org/2000/svg">
+          <rect width="120" height="90" fill="transparent"/>
+          <g opacity="0.4">
+            <rect x="10" y="10" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 25 25)"/>
+            <rect x="60" y="10" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 75 25)"/>
+            <rect x="35" y="35" width="30" height="30" fill="#162840" stroke="#0d1b2e" stroke-width="1" transform="rotate(45 50 50)"/>
+          </g>
+          <!-- Ruta III: igual que I pero trayectoria diferente -->
+          <polyline points="15,55 50,25 80,50 95,40" fill="none" stroke="#a8ff3e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="55" r="5" fill="#ff6b35"/>
+          <text x="5" y="52" fill="#ff6b35" font-size="10" font-family="Syne" font-weight="700">A</text>
+          <circle cx="75" cy="57" r="5" fill="#a8ff3e"/>
+          <text x="78" y="72" fill="#a8ff3e" font-size="10" font-family="Syne" font-weight="700">C</text>
+          <circle cx="95" cy="40" r="5" fill="#ff6b35"/>
+          <text x="98" y="37" fill="#ff6b35" font-size="10" font-family="Syne" font-weight="700">B</text>
+        </svg>
+        <div class="route-length" id="rLen3">25 cm ✓</div>
+      </div>
+    </div>
+
+    <div class="hint-box show" id="routeHint">
+      <strong>📏 Referencia:</strong> La ruta de A a C en la Figura 1 mide <strong>25 cm</strong> (5 cuadrados × 5 cm/cuadrado).
+      Cada cuadrado del mapa tiene lado de 5 cm. Las calles siguen las diagonales de los cuadrados.
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goPhase(1)">← Volver al mapa</button>
+      <button class="btn-primary" id="btnToQ" onclick="goPhase(3)" style="opacity:0.4;pointer-events:none">
+        Responder pregunta ➜
+      </button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PHASE 3: PREGUNTA OFICIAL
+  ══════════════════════════════════════ -->
+  <div class="phase" id="phase3">
+    <div class="question-number">Pregunta Oficial · SABER 11</div>
+    <div class="question-text">
+      Una persona debe ir del punto <strong>A</strong> al punto <strong>B</strong> en la ciudad.
+      Se le sugieren tres posibles rutas (I, II y III). ¿Cuál(es) de la(s) ruta(s) presentada(s)
+      es (son) de longitud <strong>igual</strong> a la mostrada en la figura 1?
+    </div>
+
+    <button class="hint-btn" onclick="toggleHint()">
+      💡 Ver pista
+    </button>
+
+    <div class="hint-box" id="mainHint">
+      La ruta de referencia en la Figura 1 va de A a C (10 cm) y luego una parte más (15 cm), pero recuerda
+      que la <em>longitud total de A a B</em> por esa misma figura es <strong>25 cm</strong>.
+      Cuenta los cuadrados en cada ruta de la Figura 2 y multiplica por 5 cm.
+    </div>
+
+    <div class="options-list">
+      <button class="option-btn" id="opt0" onclick="selectOption(0,'A')" disabled>
+        <div class="option-letter">A</div>
+        <span>Solamente I.</span>
+      </button>
+      <button class="option-btn" id="opt1" onclick="selectOption(1,'B')" disabled>
+        <div class="option-letter">B</div>
+        <span>Solamente I y III.</span>
+      </button>
+      <button class="option-btn" id="opt2" onclick="selectOption(2,'C')" disabled>
+        <div class="option-letter">C</div>
+        <span>Solamente II.</span>
+      </button>
+      <button class="option-btn" id="opt3" onclick="selectOption(3,'D')" disabled>
+        <div class="option-letter">D</div>
+        <span>Solamente II y III.</span>
+      </button>
+    </div>
+
+    <div class="feedback-box" id="feedbackBox">
+      <div class="feedback-icon" id="fbIcon"></div>
+      <div class="feedback-content">
+        <h3 id="fbTitle"></h3>
+        <p id="fbText"></p>
+      </div>
+    </div>
+
+    <div class="actions" id="actionsQ" style="display:none">
+      <button class="btn-secondary" onclick="goPhase(2)">← Revisar rutas</button>
+      <button class="btn-primary" onclick="goPhase(4)">Ver explicación completa ➜</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PHASE 4: EXPLICACIÓN COMPLETA
+  ══════════════════════════════════════ -->
+  <div class="phase" id="phase4">
+    <div class="question-number">Solución detallada</div>
+
+    <div class="explanation-section">
+      <div class="section-title">Paso 1 · Determinar el tamaño del cuadrado</div>
+      <div class="context-card">
+        <p class="context-text">
+          En la Figura 1, la ruta de <strong>A a C</strong> recorre exactamente <strong>5 cuadrados</strong> sobre el mapa.
+          Como esa distancia mide 25 cm en total:
+          <br><br>
+          <span style="font-family:'Space Mono',monospace; color: var(--accent); font-size:16px;">
+            Lado de cada cuadrado = 25 cm ÷ 5 = <strong>5 cm</strong>
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <div class="explanation-section">
+      <div class="section-title">Paso 2 · Contar cuadrados por ruta</div>
+      <div class="calc-grid">
+        <div class="calc-card highlight-card">
+          <div class="route-num">🔵 Ruta I</div>
+          <div class="calc-formula">5 cuadrados<br>× 5 cm</div>
+          <div class="calc-result">25 cm ✓</div>
+        </div>
+        <div class="calc-card">
+          <div class="route-num">🟠 Ruta II</div>
+          <div class="calc-formula">7 cuadrados<br>× 5 cm</div>
+          <div class="calc-result" style="color:var(--wrong)">35 cm ✗</div>
+        </div>
+        <div class="calc-card highlight-card">
+          <div class="route-num">🟢 Ruta III</div>
+          <div class="calc-formula">5 cuadrados<br>× 5 cm</div>
+          <div class="calc-result">25 cm ✓</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="explanation-section">
+      <div class="section-title">Paso 3 · Conclusión</div>
+      <div class="context-card">
+        <p class="context-text">
+          Las rutas <strong>I</strong> y <strong>III</strong> tienen una longitud de <strong>25 cm</strong>,
+          igual a la mostrada en la Figura 1. La Ruta II mide 35 cm, por lo que es más larga.
+          <br><br>
+          ∴ La respuesta correcta es la opción <strong style="color:var(--accent3); font-size:18px;">B — Solamente I y III.</strong>
+        </p>
+      </div>
+    </div>
+
+    <div class="competency-bar">
+      <span class="comp-icon">📊</span>
+      <div>
+        <div class="comp-label">Nivel de desempeño</div>
+        <div class="comp-value">Nivel 3 · Comprende y transforma información cuantitativa y esquemática en distintos formatos</div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-secondary" onclick="goPhase(3)">← Volver a la pregunta</button>
+      <button class="btn-primary" onclick="goPhase(5)">Ver mi resultado final ➜</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════
+       PHASE 5: RESULTADO FINAL
+  ══════════════════════════════════════ -->
+  <div class="phase" id="phase5">
+    <div class="result-hero">
+      <div class="score-ring" id="scoreRing" style="--pct: 0deg">
+        <div class="score-number" id="scoreNum">—</div>
+      </div>
+      <div class="result-title" id="resultTitle">¡Excelente trabajo!</div>
+      <p class="result-sub" id="resultSub">Has completado este ejercicio de geometría tipo SABER 11.</p>
+
+      <div class="result-stats">
+        <div class="stat">
+          <span class="stat-val" id="statResp">—</span>
+          <div class="stat-lbl">Respuesta</div>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="statHint">—</span>
+          <div class="stat-lbl">Pistas usadas</div>
+        </div>
+        <div class="stat">
+          <span class="stat-val" id="statRoutes">—</span>
+          <div class="stat-lbl">Rutas exploradas</div>
+        </div>
+      </div>
+
+      <div class="actions" style="justify-content:center">
+        <button class="btn-secondary" onclick="restartQuiz()">🔄 Intentar de nuevo</button>
+        <button class="btn-primary" onclick="goPhase(4)">📖 Revisar solución</button>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+  /* ── State ── */
+  let state = {
+    phase: 0,
+    answered: false,
+    correct: false,
+    hintsUsed: 0,
+    routesRevealed: 0,
+    selectedOpt: null,
+    hintOpen: false,
+  };
+
+  const CORRECT_OPT = 1; // index of correct answer (B)
+
+  /* ── Particles ── */
+  (function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.animationDuration = (8 + Math.random() * 14) + 's';
+      p.style.animationDelay = (Math.random() * 12) + 's';
+      p.style.width = p.style.height = (1 + Math.random() * 2) + 'px';
+      p.style.opacity = 0.3 + Math.random() * 0.4;
+      container.appendChild(p);
+    }
+  })();
+
+  /* ── Phase navigation ── */
+  function goPhase(n) {
+    document.querySelectorAll('.phase').forEach(p => p.classList.remove('active'));
+    document.getElementById('phase' + n).classList.add('active');
+    state.phase = n;
+    updateProgress(n);
+    updateSteps(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (n === 3) enableOptions();
+    if (n === 5) buildResult();
+  }
+
+  function updateProgress(n) {
+    const pcts = [0, 20, 45, 65, 85, 100];
+    document.getElementById('progressFill').style.width = (pcts[n] || 0) + '%';
+  }
+
+  function updateSteps(n) {
+    const stepIds = ['s1','s2','s3','s4'];
+    const phaseToStep = { 0: -1, 1: 0, 2: 1, 3: 2, 4: 3, 5: 3 };
+    const cur = phaseToStep[n] ?? -1;
+    stepIds.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'step' + (i < cur ? ' done' : i === cur ? ' current' : '');
+    });
+  }
+
+  /* ── Route reveal ── */
+  function revealRoute(n) {
+    const card = document.getElementById('rCard' + n);
+    const len  = document.getElementById('rLen'  + n);
+    card.classList.add('selected');
+    len.classList.add('revealed');
+    if (n === 2) { card.classList.add('wrong-anim'); }
+    else         { card.classList.add('correct-anim'); }
+    state.routesRevealed = Math.min(state.routesRevealed + 1, 3);
+    if (state.routesRevealed >= 2) {
+      const btn = document.getElementById('btnToQ');
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    }
+  }
+
+  /* ── Enable options after animation delay ── */
+  function enableOptions() {
+    setTimeout(() => {
+      document.querySelectorAll('.option-btn').forEach(b => b.disabled = false);
+    }, 300);
+  }
+
+  /* ── Select option ── */
+  function selectOption(idx, letter) {
+    if (state.answered) return;
+    state.answered = true;
+    state.selectedOpt = idx;
+    state.correct = (idx === CORRECT_OPT);
+
+    document.querySelectorAll('.option-btn').forEach((btn, i) => {
+      btn.disabled = true;
+      if (i === CORRECT_OPT) btn.classList.add('correct');
+      else if (i === idx && !state.correct) btn.classList.add('wrong');
+    });
+
+    const fb = document.getElementById('feedbackBox');
+    fb.classList.add('show', state.correct ? 'correct-fb' : 'wrong-fb');
+    document.getElementById('fbIcon').textContent  = state.correct ? '🎉' : '🤔';
+    document.getElementById('fbTitle').textContent = state.correct ? '¡Respuesta correcta!' : 'No es la opción correcta';
+    document.getElementById('fbText').textContent  = state.correct
+      ? 'Las rutas I y III tienen 25 cm cada una, igual que la referencia en la Figura 1. La ruta II mide 35 cm y es más larga.'
+      : 'Recuerda: la ruta de referencia mide 25 cm. Cuénta los cuadrados de cada ruta y multiplica por 5 cm. Las rutas I y III dan 25 cm.';
+
+    document.getElementById('actionsQ').style.display = 'flex';
+
+    // confetti si correcto
+    if (state.correct) launchConfetti();
+  }
+
+  /* ── Hint ── */
+  function toggleHint() {
+    const box = document.getElementById('mainHint');
+    const open = box.classList.toggle('show');
+    if (open) state.hintsUsed++;
+  }
+
+  /* ── Confetti ── */
+  function launchConfetti() {
+    const colors = ['#00e5ff', '#a8ff3e', '#ff6b35', '#fff'];
+    for (let i = 0; i < 60; i++) {
+      const dot = document.createElement('div');
+      dot.style.cssText = `
+        position:fixed;
+        left:${30 + Math.random()*40}vw;
+        top:${20 + Math.random()*20}vh;
+        width:${4+Math.random()*8}px;
+        height:${4+Math.random()*8}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        border-radius:${Math.random()>0.5?'50%':'2px'};
+        pointer-events:none;
+        z-index:9999;
+        animation: confettiFall ${1+Math.random()*2}s ease forwards;
+        animation-delay:${Math.random()*0.5}s;
+      `;
+      document.body.appendChild(dot);
+      setTimeout(() => dot.remove(), 3000);
+    }
+  }
+
+  /* ── Build result ── */
+  function buildResult() {
+    const pct = state.correct ? 100 : 40;
+    const ring = document.getElementById('scoreRing');
+    ring.style.setProperty('--pct', pct + '%');
+    document.getElementById('scoreNum').textContent = state.correct ? '✓' : '✗';
+    document.getElementById('resultTitle').textContent = state.correct ? '¡Excelente trabajo!' : '¡Buen intento!';
+    document.getElementById('resultSub').textContent = state.correct
+      ? 'Respondiste correctamente. Dominaste el razonamiento geométrico espacial.'
+      : 'No te preocupes — revisa la solución para entender el razonamiento paso a paso.';
+    document.getElementById('statResp').textContent   = state.correct ? '✓ Correcta' : '✗ Incorrecta';
+    document.getElementById('statHint').textContent   = state.hintsUsed;
+    document.getElementById('statRoutes').textContent = state.routesRevealed + '/3';
+  }
+
+  /* ── Restart ── */
+  function restartQuiz() {
+    state = { phase: 0, answered: false, correct: false, hintsUsed: 0, routesRevealed: 0, selectedOpt: null, hintOpen: false };
+    // Reset routes
+    for (let i = 1; i <= 3; i++) {
+      const c = document.getElementById('rCard' + i);
+      c.className = 'route-card';
+      document.getElementById('rLen' + i).classList.remove('revealed');
+    }
+    document.getElementById('btnToQ').style.opacity = '0.4';
+    document.getElementById('btnToQ').style.pointerEvents = 'none';
+    // Reset options
+    document.querySelectorAll('.option-btn').forEach(b => {
+      b.disabled = true;
+      b.className = 'option-btn';
+    });
+    const fb = document.getElementById('feedbackBox');
+    fb.className = 'feedback-box';
+    document.getElementById('actionsQ').style.display = 'none';
+    document.getElementById('mainHint').classList.remove('show');
+    goPhase(0);
+  }
+
+  /* ── Confetti keyframe inject ── */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes confettiFall {
+      0%   { opacity:1; transform: translateY(0) rotate(0deg); }
+      100% { opacity:0; transform: translateY(60vh) rotate(${Math.random()*720}deg); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+</body>
+</html>
