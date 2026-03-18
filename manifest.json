@@ -1,6 +1,6 @@
 {
   "name": "Simulador SABER 11° · Nariño",
-  "short_name": "SABER 11 - SED",
+  "short_name": "SABER 11",
   "description": "Simulador oficial de pruebas SABER 11° - Secretaría de Educación de Nariño",
   "start_url": "./index.html",
   "display": "standalone",

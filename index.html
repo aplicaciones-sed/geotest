@@ -15,7 +15,7 @@
 <style>
 /* ── Variables de diseño ── */
 :root{
-  --bg:#1a3a5c;
+  --bg:#f6f8fa;
   --surface:#ffffff;
   --primary:#1a3a5c;
   --primary-lt:#e8eef5;
@@ -27,7 +27,7 @@
   --red-lt:#fde8e6;
   --purple:#5b3fa0;
   --purple-lt:#ede8ff;
-  --text:#ffffff;
+  --text:#111827;
   --text-2:#4b5563;
   --text-3:#9ca3af;
   --border:#e5e7eb;
@@ -38,20 +38,20 @@
 }
 /* ── Reset & base ── */
 *{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+html{background:var(--primary)}
+body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh}
 
 /* ── Header / nav ── */
 .top-bar{background:var(--primary);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18)}
-.top-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:960px;margin:0 auto}
+.top-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:1100px;margin:0 auto}
 .logo-gov{display:flex;align-items:center}
-.sed-logo-wrap{background:#fff;border-radius:var(--r-sm);padding:3px 8px;display:flex;align-items:center;height:34px}
-.sed-logo{height:24px;width:auto;flex-shrink:0;display:block}
-@media(max-width:480px){.sed-logo{height:20px}.sed-logo-wrap{padding:2px 6px;height:30px}}
+.sed-logo-wrap{background:#fff;border-radius:var(--r-sm);padding:5px 10px;display:flex;align-items:center;height:40px}
+.sed-logo{height:28px;width:auto;flex-shrink:0;display:block}
+@media(max-width:480px){.sed-logo{height:24px}.sed-logo-wrap{padding:4px 8px;height:36px}.escudo-icon{height:28px}}
+.escudo-icon{height:36px;width:auto;flex-shrink:0;display:block}
 
 /* ── Área principal ── */
-.app{max-width:960px;margin:0 auto;padding:14px 12px 70px}
-@media(min-width:768px){.app{padding-bottom:20px}}
+.app{max-width:1100px;margin:0 auto;padding:14px 12px 70px}
 .screen{display:none;animation:fadeUp .3s ease}
 .screen.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -59,24 +59,41 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 /* ── Tarjetas ── */
 .card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
 
+/* Escala en pantallas grandes */
+@media(min-width:768px){
+  .app-inner{padding:20px 24px 80px}
+  .card{padding:24px;margin-bottom:16px}
+}
+@media(min-width:1024px){
+  .app-inner{padding:28px 32px 90px}
+  .card{padding:28px;margin-bottom:20px}
+}
+
 /* ── Hero inicio ── */
 .home-hero{text-align:center;padding:12px 4px 16px}
-.home-hero h1{font-size:clamp(20px,5vw,32px);font-weight:900;color:var(--primary);line-height:1.15;margin-bottom:6px}
-.home-hero p{color:var(--text-2);font-size:14px;line-height:1.5;max-width:520px;margin:0 auto}
+.home-hero h1{font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--primary);line-height:1.15;margin-bottom:6px}
+.home-hero p{color:var(--text-2);font-size:clamp(13px,1.5vw,15px);line-height:1.5;max-width:520px;margin:0 auto}
 
 /* ── Grid materias ── */
-.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;justify-content:center}
-.subj-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s ease;box-shadow:var(--shadow-sm)}
-.subj-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:#9ca3af}
-.subj-card.active-subj{border-width:3px;transform:translateY(-3px);box-shadow:var(--shadow-md)}
-.subj-icon{font-size:32px;margin-bottom:8px;display:block}
-.subj-name{font-size:13px;font-weight:800;color:#111827;line-height:1.3}
-.subj-count{font-size:11px;color:#6b7280;margin-top:4px}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+.subj-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:12px 10px;text-align:center;cursor:pointer;transition:all .2s ease;box-shadow:var(--shadow-sm)}
+.subj-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:#c5cdd8}
+.subj-card.active-subj{border-width:2px;transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.subj-icon{font-size:26px;margin-bottom:6px;display:block}
+.subj-name{font-size:12px;font-weight:800;color:var(--text);line-height:1.3}
+.subj-count{font-size:11px;color:var(--text-3);margin-top:3px}
 .s-lc.active-subj{border-color:#7c5cbf;background:var(--purple-lt)}
 .s-mat.active-subj{border-color:#1a3a5c;background:var(--primary-lt)}
 .s-soc.active-subj{border-color:#c07010;background:var(--accent-lt)}
 .s-cn.active-subj{border-color:#1e8a4a;background:var(--green-lt)}
 .s-ing.active-subj{border-color:#c0392b;background:var(--red-lt)}
+@media(min-width:768px){
+  .home-hero{padding:20px 8px 24px}
+  .subject-grid{grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}
+  .subj-card{padding:20px 14px}
+  .subj-icon{font-size:32px;margin-bottom:10px}
+  .subj-name{font-size:13px}
+}
 
 /* ── Botones ── */
 .btn{display:inline-flex;align-items:center;gap:7px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;padding:10px 20px;border-radius:var(--r-sm);border:none;cursor:pointer;transition:all .18s;letter-spacing:.2px;line-height:1}
@@ -88,6 +105,10 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .btn-outline:hover{border-color:var(--primary);background:var(--primary-lt)}
 .btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+@media(min-width:768px){
+  .btn{font-size:15px;padding:12px 26px}
+  .actions{gap:12px;margin-top:10px}
+}
 @media(max-width:500px){.btn{width:100%;justify-content:center}.actions{flex-direction:column}}
 
 /* ── Badge ── */
@@ -114,6 +135,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .q-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-3)}
 .q-context{background:#f9fafb;border-left:3px solid var(--accent);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:10px 14px;margin-bottom:12px;font-size:13px;line-height:1.6;color:var(--text)}
 .q-text{font-size:15px;font-weight:700;line-height:1.5;margin-bottom:14px;color:var(--text)}
+@media(min-width:768px){
+  .q-meta{margin-bottom:14px}
+  .q-context{padding:14px 18px;margin-bottom:16px;font-size:14px}
+  .q-text{font-size:16px;margin-bottom:18px}
+}
 
 /* ── Figuras / imágenes ── */
 .q-figure{margin:10px 0;text-align:center}
@@ -136,6 +162,11 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .opt.correct .opt-letter{background:var(--green);color:#fff}
 .opt.wrong .opt-letter{background:var(--red);color:#fff}
 .opt-img{max-width:100%;max-height:140px;border-radius:6px;margin-top:5px;display:block}
+@media(min-width:768px){
+  .opts{gap:9px;margin-bottom:18px}
+  .opt{padding:13px 16px;font-size:15px}
+  .opt-letter{width:28px;height:28px;min-width:28px}
+}
 
 /* ── Feedback ── */
 .feedback{border-radius:var(--r);padding:11px 14px;margin-bottom:12px;display:none;animation:fadeUp .3s ease}
@@ -202,6 +233,23 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
   .subject-grid{grid-template-columns:1fr 1fr}
   .score-table td:nth-child(3){display:none}
 }
+@media(min-width:768px){
+  .subj-intro{padding:28px 0}
+  .subj-intro .big-icon{font-size:60px;margin-bottom:14px}
+  .subj-intro h2{font-size:24px}
+  .subj-intro p{font-size:15px;margin-bottom:24px}
+  .info-chips{margin-bottom:24px}
+  .result-header{padding:28px;margin-bottom:16px}
+  .result-header h2{font-size:22px}
+  .global-score{padding:18px 24px;margin-top:16px}
+  .global-score .pts{font-size:48px}
+  .subj-result-card{padding:18px;margin-bottom:12px}
+  .score-table th{padding:10px 12px}
+  .score-table td{padding:11px 12px;font-size:14px}
+  .feedback{padding:14px 18px;margin-bottom:14px}
+  .prog-wrap{margin-bottom:18px}
+  .stepper{margin-bottom:18px}
+}
 </style>
 </head>
 <body>
@@ -209,7 +257,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 <div class="top-bar">
   <div class="top-inner">
     <div class="logo-gov">
-      <div class="sed-logo-wrap"><svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" id="Capa_2" data-name="Capa 2" viewBox="0 0 205.77 34.98" version="1.1" sodipodi:docname="logo40SEDNARINO_OK.svg" inkscape:version="1.1.2 (0a00cf5339, 2022-02-04)" class="sed-logo">
+      <div class="sed-logo-wrap"><svg class="sed-logo" viewBox="0 0 205.77 34.98" xmlns="http://www.w3.org/2000/svg">
   <defs id="defs961">
     <style id="style953">
       .cls-1, .cls-2, .cls-3, .cls-4, .cls-5, .cls-6, .cls-7, .cls-8, .cls-9, .cls-10, .cls-11, .cls-12, .cls-13, .cls-14, .cls-15, .cls-16, .cls-17, .cls-18, .cls-19, .cls-20, .cls-21, .cls-22, .cls-23, .cls-24, .cls-25 {
@@ -801,7 +849,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
       <p>Practica con preguntas e imágenes reales del examen ICFES. Selecciona una asignatura.</p>
     </div>
     <hr style="border:none;border-top:1px solid var(--border);margin:20px 0">
-    <div style="font-size:12px;font-weight:800;color:var(--text-2);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Elige una asignatura</div>
+    <div style="font-size:12px;font-weight:800;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Elige una asignatura</div>
     <div class="subject-grid">
       <div class="subj-card s-lc" onclick="selectSubject('lc')"><span class="subj-icon">📖</span><div class="subj-name">Lectura Crítica</div><div class="subj-count">6 preguntas</div></div>
       <div class="subj-card s-mat" onclick="selectSubject('mat')"><span class="subj-icon">📐</span><div class="subj-name">Matemáticas</div><div class="subj-count">9 preguntas</div></div>
