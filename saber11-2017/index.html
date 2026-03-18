@@ -133,7 +133,7 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .tag-cn{background:var(--green-lt);color:var(--green)}
 .tag-ing{background:var(--red-lt);color:var(--red)}
 .q-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-3)}
-.q-context{background:#f9fafb;border-left:3px solid var(--accent);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:10px 14px;margin-bottom:12px;font-size:13px;line-height:1.6;color:var(--text)}
+.q-context{background:#fffdf7;border:1px solid #f0d88a;border-left:4px solid var(--accent);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:14px 18px;margin-bottom:16px;font-size:14px;line-height:1.75;color:var(--text)}
 .q-text{font-size:15px;font-weight:700;line-height:1.5;margin-bottom:14px;color:var(--text)}
 @media(min-width:768px){
   .q-meta{margin-bottom:14px}
@@ -871,6 +871,9 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
     <div style="margin-top:12px;text-align:center">
       <a href="../index.html" style="font-size:13px;color:var(--text-3);text-decoration:none;font-weight:700">← Volver al portal</a>
     </div>
+    <div style="margin-top:14px;padding:10px 14px;background:#f6f8fa;border-radius:8px;border:1px solid var(--border)">
+      <p style="font-size:11px;color:var(--text-3);line-height:1.6;text-align:center">Contenido basado en publicaciones del <strong style="color:var(--text-2)">ICFES</strong> (www.icfes.gov.co), usado con fines académicos.</p>
+    </div>
   </div>
 </div>
 
@@ -941,12 +944,12 @@ const QB = {
     competencias:["Identificar y entender contenidos locales","Comprender articulación global del texto","Reflexionar y evaluar contenidos"],
     questions:[
       {id:1,
-       context:'<strong>Texto filosófico (Hobbes, <em>Tratado sobre el ciudadano</em>):</strong><br><br>"Aunque las comodidades de esta vida pueden aumentarse con la ayuda mutua, sin embargo, como eso se puede conseguir dominando a los demás mejor que asociándose con ellos, nadie debe dudar de que los hombres por su naturaleza, si no existiera el miedo, se verían inclinados más al dominio que a la sociedad. Por lo tanto, hay que afirmar que el origen de las sociedades grandes y duraderas no se ha debido a la mutua benevolencia de los hombres sino al <strong>miedo mutuo</strong>."',
+       context:'<div style="margin-bottom:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#7a5010;padding:3px 0">Responda la pregunta 1 de acuerdo con la siguiente información:</div><div style="font-size:14px;line-height:1.75;color:#1a1a1a;text-align:justify">Aunque las comodidades de esta vida pueden aumentarse con la ayuda mutua, sin embargo, como eso se puede conseguir dominando a los demás mejor que asociándose con ellos, nadie debe dudar de que los hombres por su naturaleza, si no existiera el miedo, se verían inclinados más al dominio que a la sociedad. Por lo tanto, hay que afirmar que el origen de las sociedades grandes y duraderas no se ha debido a la mutua benevolencia de los hombres sino al miedo mutuo.</div><div style="margin-top:10px;font-size:11px;color:#888;font-style:italic;text-align:center">Tomado de: Hobbes, T. (1999). <em>Tratado sobre el ciudadano</em>. trad. Joaquín Rodríguez Feo. Madrid: Trotta.</div>',
        text:'De acuerdo con las ideas del texto, si "los hombres por su naturaleza están más inclinados al dominio que a la sociedad", ¿por qué aparecieron sociedades grandes y duraderas?',
-       opts:["A. Es natural para el hombre asociarse con otros para ejercer su dominio con seguridad.","B. Para ampliar su capacidad de dominio, al hombre le resulta más efectivo vivir en sociedad.","C. Es propio del hombre evitar todo tipo de dominio a través de las relaciones confiables de la sociedad.","D. El hombre forma sociedades duraderas porque el miedo mutuo lo impulsa a convivir con otros."],
+       opts:["A. Es natural para el hombre asociarse con otros para ejercer su dominio con seguridad.","B. Para ampliar su capacidad de dominio, al hombre le resulta más efectivo vivir en sociedad.","C. Es propio del hombre evitar todo tipo de dominio a través de las relaciones confiables que le brinda la vida en sociedad.","D. El hombre busca la seguridad y es más seguro para él vivir en comunidad que estar expuesto a ser dominado por otro."],
        correct:3,hint:"El texto afirma explícitamente que el origen de las sociedades se debe al miedo mutuo, no a la benevolencia.",
        comp:"Reflexiona a partir de un texto y evalúa su contenido",nivel:3,
-       explain:"El texto establece que el origen de las sociedades duraderas es el miedo mutuo. La opción D es la única que recoge esta idea con precisión."},
+       explain:"El texto establece que el origen de las sociedades duraderas es el miedo mutuo. La opción D es la correcta. \"En este caso, el estudiante debe ser capaz de dar cuenta de por qué un determinado enunciado es una razón para justificar la tesis del texto. Concretamente, debe comprender que, en este caso, según Hobbes, la razón que tiene el hombre para asociarse es el peligro que representan los otros.\""},
       {id:2,
        context:'<strong>Fábula:</strong><br>"En lo más intricado de la Selva existió en tiempos lejanos un Búho que empezó a preocuparse por los demás. Se dio a meditar sobre las maldades que hacía el León con su poder; sobre la debilidad de la Hormiga que era aplastada todos los días; sobre la risa de la Hiena que nunca venía al caso... y concluía: \'Si el León no hiciera lo que hace sino lo que hace el Caballo…\'"',
        text:'¿Cuál es la función principal del Búho en esta fábula?',
@@ -1531,6 +1534,9 @@ function launchConfetti(n){
 if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 <!-- MODAL REGRESAR -->
+<footer style="background:var(--primary);color:rgba(255,255,255,.5);text-align:center;padding:16px 24px;font-size:11px;border-top:1px solid rgba(255,255,255,.08)">
+  <p>Fuente: ICFES – Instituto Colombiano para la Evaluación de la Educación.</p>
+</footer>
 <div class="modal-overlay" id="modalBack" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
     <h3>⚠️ ¿Terminar simulacro?</h3>

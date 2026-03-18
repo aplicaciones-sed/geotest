@@ -1,4 +1,4 @@
-const CACHE = 'portal-sed-narino-v1';
+const CACHE = 'portal-sed-narino-v2';
 const ASSETS = [
   './',
   './index.html',
