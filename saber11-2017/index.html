@@ -1257,7 +1257,8 @@ function shuffleOpts(q){
   const newOpts=order.map(i=>origOpts[i]);
   const newCorrect=order.indexOf(origCorrect);
   // Devolver NUEVO objeto sin mutar el original del banco
-  return{...q, opts:newOpts, correct:newCorrect};
+  // _origCorrect guardado para corregir la letra en el explain
+  return{...q, opts:newOpts, correct:newCorrect, _origCorrect:origCorrect};
 }
 
 /* ════════════ STATE ════════════ */
@@ -1377,7 +1378,20 @@ function selectOpt(idx){
   fb.className='feedback show '+(correct?'fb-correct':'fb-wrong');
   document.getElementById('fbIcon').textContent=correct?'🎉':'🤔';
   document.getElementById('fbTitle').textContent=correct?'¡Correcto!':'Respuesta incorrecta';
-  document.getElementById('fbText').textContent=q.explain;
+  // Corregir la letra mencionada en el explain según el orden actual del shuffle
+  const letters=['A','B','C','D'];
+  const origLetter = letters[q._origCorrect ?? q.correct];
+  const newLetter  = letters[q.correct];
+  const fixedExplain = origLetter !== newLetter
+    ? q.explain.replace(
+        new RegExp(`\\b(opci[oó]n|respuesta|answer is|answer:|option)\\s*${origLetter}\\b`, 'gi'),
+        (_, prefix) => `${prefix} ${newLetter}`
+      ).replace(
+        new RegExp(`\\(${origLetter}\\)`, 'g'),
+        `(${newLetter})`
+      )
+    : q.explain;
+  document.getElementById('fbText').textContent=fixedExplain;
   document.getElementById('qActions').style.display='flex';
   const isLast=state.current===state.questions.length-1;
   document.getElementById('btnNext').textContent=isLast?(state.allSubjects&&state.allQueue.length>0?`Ir a ${QB[state.allQueue[0]]?.name} ➜`:'Ver resultados 📊'):'Siguiente pregunta ➜';
