@@ -15,7 +15,7 @@
 <style>
 /* ── Variables de diseño ── */
 :root{
-  --bg:#f6f8fa;
+  --bg:#1a3a5c;
   --surface:#ffffff;
   --primary:#1a3a5c;
   --primary-lt:#e8eef5;
@@ -27,7 +27,7 @@
   --red-lt:#fde8e6;
   --purple:#5b3fa0;
   --purple-lt:#ede8ff;
-  --text:#111827;
+  --text:#ffffff;
   --text-2:#4b5563;
   --text-3:#9ca3af;
   --border:#e5e7eb;
@@ -45,12 +45,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .top-bar{background:var(--primary);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18)}
 .top-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:960px;margin:0 auto}
 .logo-gov{display:flex;align-items:center}
-.sed-logo-wrap{background:#fff;border-radius:var(--r-sm);padding:5px 10px;display:flex;align-items:center;height:40px}
-.sed-logo{height:28px;width:auto;flex-shrink:0;display:block}
-@media(max-width:480px){.sed-logo{height:24px}.sed-logo-wrap{padding:4px 8px;height:36px}}
+.sed-logo-wrap{background:#fff;border-radius:var(--r-sm);padding:3px 8px;display:flex;align-items:center;height:34px}
+.sed-logo{height:24px;width:auto;flex-shrink:0;display:block}
+@media(max-width:480px){.sed-logo{height:20px}.sed-logo-wrap{padding:2px 6px;height:30px}}
 
 /* ── Área principal ── */
 .app{max-width:960px;margin:0 auto;padding:14px 12px 70px}
+@media(min-width:768px){.app{padding-bottom:20px}}
 .screen{display:none;animation:fadeUp .3s ease}
 .screen.active{display:block}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
@@ -64,13 +65,13 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
 .home-hero p{color:var(--text-2);font-size:14px;line-height:1.5;max-width:520px;margin:0 auto}
 
 /* ── Grid materias ── */
-.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
-.subj-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:12px 10px;text-align:center;cursor:pointer;transition:all .2s ease;box-shadow:var(--shadow-sm)}
-.subj-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:#c5cdd8}
-.subj-card.active-subj{border-width:2px;transform:translateY(-2px);box-shadow:var(--shadow-md)}
-.subj-icon{font-size:26px;margin-bottom:6px;display:block}
-.subj-name{font-size:12px;font-weight:800;color:var(--text);line-height:1.3}
-.subj-count{font-size:11px;color:var(--text-3);margin-top:3px}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:16px;justify-content:center}
+.subj-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:16px 12px;text-align:center;cursor:pointer;transition:all .2s ease;box-shadow:var(--shadow-sm)}
+.subj-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:#9ca3af}
+.subj-card.active-subj{border-width:3px;transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.subj-icon{font-size:32px;margin-bottom:8px;display:block}
+.subj-name{font-size:13px;font-weight:800;color:#111827;line-height:1.3}
+.subj-count{font-size:11px;color:#6b7280;margin-top:4px}
 .s-lc.active-subj{border-color:#7c5cbf;background:var(--purple-lt)}
 .s-mat.active-subj{border-color:#1a3a5c;background:var(--primary-lt)}
 .s-soc.active-subj{border-color:#c07010;background:var(--accent-lt)}
@@ -800,7 +801,7 @@ body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-
       <p>Practica con preguntas e imágenes reales del examen ICFES. Selecciona una asignatura.</p>
     </div>
     <hr style="border:none;border-top:1px solid var(--border);margin:20px 0">
-    <div style="font-size:12px;font-weight:800;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Elige una asignatura</div>
+    <div style="font-size:12px;font-weight:800;color:var(--text-2);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Elige una asignatura</div>
     <div class="subject-grid">
       <div class="subj-card s-lc" onclick="selectSubject('lc')"><span class="subj-icon">📖</span><div class="subj-name">Lectura Crítica</div><div class="subj-count">6 preguntas</div></div>
       <div class="subj-card s-mat" onclick="selectSubject('mat')"><span class="subj-icon">📐</span><div class="subj-name">Matemáticas</div><div class="subj-count">9 preguntas</div></div>
