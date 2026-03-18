@@ -119,7 +119,7 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f7d070);border-radius:4px;transition:width .5s ease}
 
 /* ── Stepper dots ── */
-.stepper{display:flex;gap:4px;margin-bottom:14px}
+.stepper{display:flex;gap:4px;margin-bottom:14px;align-items:center}
 .step-dot{flex:1;height:3px;border-radius:2px;background:var(--border);transition:all .3s}
 .step-dot.done{background:var(--green)}
 .step-dot.current{background:var(--accent)}
@@ -871,7 +871,10 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 
 <!-- QUESTION -->
 <div class="screen" id="s-question">
-  <div class="stepper" id="stepperDots"></div>
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <button class="btn btn-outline" style="padding:7px 14px;font-size:13px" onclick="confirmBack()">← Regresar</button>
+    <div class="stepper" id="stepperDots" style="flex:1;margin-bottom:0"></div>
+  </div>
   <div class="card" id="questionCard">
     <div class="q-meta">
       <span class="q-subject-tag" id="qTag"></span>
@@ -1231,6 +1234,19 @@ const QB = {
   }
 };
 
+/* ════════════ SHUFFLE ════════════ */
+function shuffleOpts(q){
+  // Crear orden mezclado con Fisher-Yates
+  const order=[0,1,2,3];
+  for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
+  // order[newIdx] = originalIdx
+  // newCorrect = posición en el nuevo orden donde está la respuesta original correcta
+  const newOpts=order.map(i=>q.opts[i]);
+  const newCorrect=order.indexOf(q.correct);
+  // Guardar el orden para traducir de vuelta al calificar
+  return{...q, opts:newOpts, correct:newCorrect, _originalCorrect:q.correct, _order:order};
+}
+
 /* ════════════ STATE ════════════ */
 let state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{}};
 const CORRECT=q=>q.correct;
@@ -1249,7 +1265,9 @@ function startAllSubjects(){
 function startQuiz(){state.allSubjects=false;beginSubject();}
 function beginSubject(){
   const s=QB[state.subject];
-  state.questions=[...s.questions];state.current=0;
+  // Mezclar opciones de cada pregunta en cada intento
+  state.questions=s.questions.map(q=>shuffleOpts(q));
+  state.current=0;
   state.answers=new Array(s.questions.length).fill(null);state.hintsUsed=0;
   showIntro();
 }
@@ -1363,7 +1381,7 @@ function nextQuestion(){
   if(state.current<state.questions.length-1){state.current++;showQuestion();}
   else{
     if(state.allSubjects){
-      state.allAnswers[state.subject]=[...state.answers];
+      state.allAnswers[state.subject]={answers:[...state.answers],questions:[...state.questions]};
       if(state.allQueue.length>0){state.subject=state.allQueue.shift();beginSubject();return;}
     }
     showResults();
@@ -1375,19 +1393,19 @@ function showResults(){
   setProgress(100);
   let subjects=[];
   if(state.allSubjects){
-    state.allAnswers[state.subject]=[...state.answers];
-    Object.entries(state.allAnswers).forEach(([k,a])=>subjects.push({key:k,answers:a}));
+    state.allAnswers[state.subject]={answers:[...state.answers],questions:[...state.questions]};
+    Object.entries(state.allAnswers).forEach(([k,d])=>subjects.push({key:k,answers:d.answers,questions:d.questions}));
   } else {
-    subjects.push({key:state.subject,answers:state.answers});
+    subjects.push({key:state.subject,answers:state.answers,questions:state.questions});
   }
   let totalCorrect=0,totalQ=0;
-  const sc=subjects.map(({key,answers})=>{
-    const qs=QB[key].questions;
-    let correct=answers.filter((a,i)=>a===qs[i].correct).length;
-    totalCorrect+=correct;totalQ+=qs.length;
-    const pct=Math.round((correct/qs.length)*100);
+  const sc=subjects.map(({key,answers,questions})=>{
+    // Comparar contra q.correct del state (ya tiene en cuenta el shuffle)
+    let correct=answers.filter((a,i)=>a===questions[i].correct).length;
+    totalCorrect+=correct;totalQ+=questions.length;
+    const pct=Math.round((correct/questions.length)*100);
     const nivel=pct>=75?4:pct>=50?3:pct>=25?2:1;
-    return{key,correct,total:qs.length,pct,nivel,answers};
+    return{key,correct,total:questions.length,pct,nivel,answers};
   });
   const globalPct=Math.round((totalCorrect/totalQ)*100);
   const globalPts=subjects.length>1?Math.round(globalPct*5):globalPct;
@@ -1453,6 +1471,11 @@ function showResults(){
 function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
 function setProgress(pct){document.getElementById('progFill').style.width=pct+'%';}
 function restartSame(){state.allSubjects=false;beginSubject();}
+function confirmBack(){
+  if(confirm('¿Seguro que quieres terminar el simulacro? Perderás tu progreso actual.')){
+    goHome();
+  }
+}
 function goHome(){
   state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{}};
   document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('active-subj'));
