@@ -868,6 +868,9 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
       <button class="btn btn-primary" id="btnStart" disabled onclick="startQuiz()">Comenzar simulacro ➜</button>
       <button class="btn btn-outline" onclick="startAllSubjects()">Examen completo 📋</button>
     </div>
+    <div style="margin-top:12px;text-align:center">
+      <a href="../index.html" style="font-size:13px;color:var(--text-3);text-decoration:none;font-weight:700">← Volver al portal</a>
+    </div>
   </div>
 </div>
 
@@ -1382,15 +1385,21 @@ function selectOpt(idx){
   const letters=['A','B','C','D'];
   const origLetter = letters[q._origCorrect ?? q.correct];
   const newLetter  = letters[q.correct];
-  const fixedExplain = origLetter !== newLetter
-    ? q.explain.replace(
-        new RegExp(`\\b(opci[oó]n|respuesta|answer is|answer:|option)\\s*${origLetter}\\b`, 'gi'),
-        (_, prefix) => `${prefix} ${newLetter}`
-      ).replace(
-        new RegExp(`\\(${origLetter}\\)`, 'g'),
-        `(${newLetter})`
-      )
-    : q.explain;
+  function fixExplainLetter(text, orig, rep){
+    if(orig === rep) return text;
+    // Patrones: (A), opción A, respuesta A, answer is A, answer: A, option A,
+    // gráfica A, Solo A, Por tanto A, la A, es A al final o antes de puntuación
+    return text
+      .replace(new RegExp(`\\(${orig}\\)`, 'g'), `(${rep})`)
+      .replace(new RegExp(`\\b(opci[oó]n|respuesta|answer is|answer:|option|gr[aá]fica|Solo|solo|es la)\\s+${orig}\\b`, 'gi'),
+        (_, p) => `${p} ${rep}`)
+      .replace(new RegExp(`\\bthe correct answer is ${orig}\\b`, 'gi'), `The correct answer is ${rep}`)
+      .replace(new RegExp(`\\b(Por tanto|Therefore|purpose is)\\s+${orig}\\b`, 'gi'),
+        (_, p) => `${p} ${rep}`)
+      .replace(new RegExp(`\\bSolo ${orig}\\b`, 'g'), `Solo ${rep}`)
+      .replace(new RegExp(`\\bOnly ${orig}\\b`, 'g'), `Only ${rep}`);
+  }
+  const fixedExplain = fixExplainLetter(q.explain, origLetter, newLetter);
   document.getElementById('fbText').textContent=fixedExplain;
   document.getElementById('qActions').style.display='flex';
   const isLast=state.current===state.questions.length-1;
@@ -1528,7 +1537,7 @@ if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.se
     <p>Perderás el progreso actual de esta prueba.</p>
     <div class="modal-actions">
       <button class="btn btn-outline" onclick="closeModal()">Continuar</button>
-      <button class="btn btn-primary" onclick="goHome()">Salir</button>
+      <a class="btn btn-primary" href="../index.html">Salir al portal</a>
     </div>
   </div>
 </div>
