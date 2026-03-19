@@ -265,6 +265,23 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
   .prog-wrap{margin-bottom:18px}
   .stepper{margin-bottom:18px}
 }
+
+/* ── Avatar cuy correcto ── */
+#cuyAvatar{
+  position:fixed;
+  bottom:-280px;
+  right:16px;
+  width:160px;
+  z-index:99999;
+  transition:bottom .6s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;
+  filter:drop-shadow(0 8px 20px rgba(0,0,0,.35));
+}
+#cuyAvatar.show{bottom:0px}
+#cuyAvatar img{width:100%;height:auto;display:block}
+@media(max-width:480px){
+  #cuyAvatar{width:130px;right:8px}
+}
 </style>
 </head>
 <body>
@@ -1440,8 +1457,13 @@ function showCuy(){
   const img=document.getElementById('cuyImg');
   if(!el||!img) return;
   img.src=IMGS['cuy_correcto']||'';
+  // Resetear posición antes de mostrar
+  el.classList.remove('show');
   el.style.display='block';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('show')));
+  // Doble rAF para que el navegador procese display:block antes de aplicar la transición
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    el.classList.add('show');
+  }));
   clearTimeout(window._cuyTimer);
   window._cuyTimer=setTimeout(()=>{
     el.classList.remove('show');
