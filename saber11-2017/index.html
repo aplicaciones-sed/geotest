@@ -222,7 +222,12 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .chip{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--primary)}
 
 /* ── Metadata ICFES ── */
-#fbMeta{background:#f0f4f8;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:12px;font-size:12px}
+#fbMeta{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;font-size:12px;box-shadow:var(--shadow-sm)}
+.meta-table{width:100%;border-collapse:collapse}
+.meta-table tr{border-bottom:1px solid var(--border)}
+.meta-table tr:last-child{border-bottom:none}
+.meta-table td:first-child{font-weight:800;color:var(--text-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:7px 14px 7px 0;white-space:nowrap;vertical-align:top;width:1%}
+.meta-table td:last-child{color:var(--text);font-size:12.5px;padding:7px 0;line-height:1.5;vertical-align:top}
 .meta-row{display:flex;align-items:baseline;gap:8px;padding:4px 0;border-bottom:1px solid var(--border)}
 .meta-row:last-child{border-bottom:none;padding-bottom:0}
 .meta-label{font-weight:800;color:var(--text-2);white-space:nowrap;min-width:130px;font-size:11px;text-transform:uppercase;letter-spacing:.4px}
@@ -230,6 +235,29 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .meta-pill{display:inline-block;padding:2px 10px;border-radius:20px;font-weight:800;font-size:11px}
 .meta-nivel{background:var(--primary-lt);color:var(--primary)}
 .meta-tipo{background:var(--accent-lt);color:#8a5010;margin-left:6px}
+.meta-nivel-1{background:#fff3cd;color:#856404}
+.meta-nivel-2{background:#d1ecf1;color:#0c5460}
+.meta-nivel-3{background:#d4edda;color:#155724}
+.meta-nivel-4{background:#cce5ff;color:#004085}
+/* ── Nivel clickable ── */
+.nivel-clickable{cursor:pointer;transition:opacity .15s}
+.nivel-clickable:hover{opacity:.82}
+/* ── Modal nivel ── */
+#nivelModal{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:20000;display:none;align-items:flex-end;justify-content:center;padding:0}
+#nivelModal.show{display:flex}
+.nivel-sheet{background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;padding:24px 20px 32px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.nivel-sheet-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.nivel-sheet-badge{padding:4px 14px;border-radius:20px;font-weight:900;font-size:14px}
+.nivel-sheet h3{font-size:16px;font-weight:900;color:var(--text);flex:1}
+.nivel-sheet-close{background:none;border:none;font-size:22px;color:var(--text-2);cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px}
+.nivel-sheet-close:hover{background:var(--bg)}
+.nivel-desc-summary{font-size:13.5px;color:var(--text);line-height:1.6;margin-bottom:14px;padding:10px 14px;background:var(--bg);border-radius:var(--r-sm);border-left:3px solid var(--primary)}
+.nivel-desc-items{list-style:none;padding:0;margin:0}
+.nivel-desc-items li{font-size:13px;color:var(--text-2);padding:5px 0 5px 20px;position:relative;border-bottom:1px solid var(--border);line-height:1.5}
+.nivel-desc-items li:last-child{border-bottom:none}
+.nivel-desc-items li::before{content:'•';position:absolute;left:6px;color:var(--primary);font-weight:700}
+.nivel-range{font-size:11px;color:var(--text-3);margin-top:4px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex}
 .modal-box{background:var(--surface);border-radius:var(--r-lg);padding:24px;max-width:340px;width:100%;box-shadow:var(--shadow-lg);text-align:center;animation:fadeUp .25s ease}
@@ -1555,18 +1583,88 @@ function selectOpt(idx){
     const componente = (parts.find(p => p.startsWith('Componente:')) || '').replace('Componente: ','');
     const nivel = q.nivel || '';
     const nivelCls = ['','meta-nivel-1','meta-nivel-2','meta-nivel-3','meta-nivel-4'][nivel] || 'meta-nivel-1';
+    let compAfirm = competencia;
+    if(afirmacion) compAfirm += `<br><span style="font-weight:400;color:var(--text-2);font-style:italic">${afirmacion}</span>`;
     let rows = '';
-    if(competencia) rows += `<tr><td>Competencia/Afirmación</td><td>${competencia}${afirmacion ? '<br><span style="font-weight:400;font-style:italic">' + afirmacion + '</span>' : ''}</td></tr>`;
-    if(contenido && !contenido.startsWith('Tipo:') && !contenido.startsWith('Componente:')) rows += `<tr><td>Contenido</td><td>${contenido}</td></tr>`;
-    if(componente) rows += `<tr><td>Componente</td><td>${componente}</td></tr>`;
-    if(tipo) rows += `<tr><td>Tipo de texto</td><td>${tipo}</td></tr>`;
-    if(nivel) rows += `<tr><td>Nivel de desempeño</td><td><span class="meta-nivel ${nivelCls}">${nivel}</span></td></tr>`;
+    if(compAfirm) rows += `<tr><td>📌 Competencia/Afirmación</td><td>${compAfirm}</td></tr>`;
+    if(contenido && !contenido.startsWith('Tipo:') && !contenido.startsWith('Componente:')) rows += `<tr><td>📚 Contenido</td><td>${contenido}</td></tr>`;
+    if(componente) rows += `<tr><td>🔖 Componente</td><td>${componente}</td></tr>`;
+    if(tipo) rows += `<tr><td>📄 Tipo de texto</td><td>${tipo}</td></tr>`;
+    if(nivel) rows += `<tr><td>⭐ Nivel de desempeño</td><td><span class="meta-pill meta-nivel ${nivelCls} nivel-clickable" onclick="showNivelInfo(${nivel},'${state.subject}')" title="Ver descripción del nivel">${nivel} <span style="font-size:10px;opacity:.7">ⓘ</span></span></td></tr>`;
     metaDiv.innerHTML = rows ? `<table class="meta-table">${rows}</table>` : '';
     metaDiv.style.display = rows ? 'block' : 'none';
   }
   const isLast=state.current===state.questions.length-1;
   document.getElementById('btnNext').textContent=isLast?(state.allSubjects&&state.allQueue.length>0?`Ir a ${QB[state.allQueue[0]]?.name} ➜`:'Ver resultados 📊'):'Siguiente pregunta ➜';
   if(correct) launchConfetti(4);
+}
+
+
+
+/* ════════════ NIVEL DE DESEMPEÑO INFO ════════════ */
+const NIVEL_INFO = {
+  lc: {
+    name: 'Lectura Crítica',
+    1: { range: 'Puntaje 0 – 35', summary: 'Identifica elementos literales en textos continuos y discontinuos sin establecer relaciones de significado.', items: [] },
+    2: { range: 'Puntaje 36 – 50', summary: 'Comprende textos continuos y discontinuos de manera literal. Reconoce información explícita y la relaciona con el contexto.', items: ['Identifica información local del texto.','Identifica la estructura de textos continuos y discontinuos.','Identifica relaciones básicas entre componentes del texto.','Identifica fenómenos semánticos básicos: sinónimos y antónimos.','Reconoce en un texto la diferencia entre proposición y párrafo.','Reconoce el sentido local y global del texto.','Identifica intenciones comunicativas explícitas.','Identifica relaciones básicas: contraste, similitud y complementación, entre textos presentes.'] },
+    3: { range: 'Puntaje 51 – 65', summary: 'Interpreta información de textos al inferir contenidos implícitos y reconocer estructuras, estrategias discursivas y juicios valorativos.', items: ['Jerarquiza la información presente en un texto.','Infiere información implícita en textos continuos y discontinuos.','Establece relaciones intertextuales: definición, causa-efecto, oposición y antecedente-consecuente, entre textos presentes.','Reconoce la intención comunicativa del texto.','Relaciona marcadores textuales en la interpretación de textos.','Reconoce la función de figuras literarias.','Identifica el uso del lenguaje en contexto.','Analiza y sintetiza la información contenida en un texto.','Identifica la estructura sintáctica en textos discontinuos.','Establece la validez de argumentos en un texto.'] },
+    4: { range: 'Puntaje 66 – 100', summary: 'Reflexiona a partir de un texto sobre la visión de mundo del autor (costumbres, creencias, juicios, carácter ideológico-político y posturas éticas). Da cuenta de elementos paratextuales significativos y valora y contrasta los elementos mencionados con la posición propia.', items: ['Propone soluciones a problemas de interpretación que subyacen en un texto.','Evalúa contenidos, estrategias discursivas y argumentativas presentes en un texto.','Relaciona información de dos o más textos o fragmentos de texto para llegar a una conclusión.','Aplica conceptos de análisis literario para caracterizar diferentes elementos en un texto.','Reconoce los contextos como elementos importantes en la valoración de un texto.','Selecciona elementos locales y construye argumentos que sustentan una tesis con base en textos relacionados.','Asume una postura crítica frente a los planteamientos de un texto.','Plantea hipótesis de lectura a partir de las ideas presentes en un texto.'] }
+  },
+  mat: {
+    name: 'Matemáticas',
+    1: { range: 'Puntaje 0 – 35', summary: 'Puede leer información puntual relacionada con situaciones cotidianas presentada en tablas o gráficas, pero puede tener dificultades al comparar distintos conjuntos de datos o analizar situaciones alejadas de su vida diaria.', items: [] },
+    2: { range: 'Puntaje 36 – 50', summary: 'Hace comparaciones y establece relaciones entre los datos presentados, e identifica y extrae información local y global de manera directa, en contextos familiares o personales.', items: ['Compara datos de dos variables presentadas en una misma gráfica sin operaciones aritméticas.','Identifica valores o puntos representativos en diferentes tipos de registro.','Compara la probabilidad de eventos simples cuando los casos posibles son los mismos.','Toma decisiones sobre la veracidad o falsedad de una afirmación a partir de lectura directa.','Cambia gráficas de barras a tablas de doble entrada.','Reconoce e interpreta el significado de promedio simple, moda, mayor, menor, máximo y mínimo.'] },
+    3: { range: 'Puntaje 51 – 70', summary: 'Selecciona información, señala errores y hace distintos tipos de transformaciones y manipulaciones aritméticas y algebraicas sencillas, involucrando conceptos de proporcionalidad, factores de conversión, áreas y desarrollos planos.', items: ['Selecciona la gráfica correspondiente a la información de una tabla según la escala, el tipo de variable y el tipo de gráfica.','Compara información gráfica que requiere algunas manipulaciones aritméticas.','Señala información representada en formatos no convencionales (mapas o infografías).','Reconoce errores ocurridos al realizar una transformación entre diferentes tipos de registro.','Reconoce desarrollos planos de una forma tridimensional y viceversa.','Compara la probabilidad de eventos simples en diversos contextos.','Selecciona información necesaria para resolver problemas con operaciones aritméticas.','Cambia la escala cuando la transformación no es convencional.','Justifica afirmaciones utilizando planteamientos y operaciones aritméticas.','Hace manipulaciones algebraicas sencillas (aritmética de términos semejantes).'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Resuelve problemas y justifica la veracidad o falsedad de afirmaciones que requieren el uso de conceptos de probabilidad, propiedades algebraicas, relaciones trigonométricas y características de funciones reales.', items: ['Resuelve problemas que requieren interpretar información de eventos dependientes.','Realiza transformaciones de subconjuntos de información que pueden requerir el uso de operaciones complejas (cálculos de porcentajes).','Resuelve problemas que requieren construir una representación auxiliar (gráficas y fórmulas) como paso intermedio.','Modela usando lenguaje algebraico información dada en lenguaje natural, tablas o representaciones geométricas.','Manipula expresiones algebraicas o aritméticas haciendo uso de las propiedades de las operaciones.','Modela fenómenos variacionales no explícitos haciendo uso de lenguaje simbólico o gráficas.','Reconoce en diferentes formatos el espacio muestral de un experimento aleatorio.','Resuelve problemas de conteo que requieren el uso de permutaciones.','Justifica si hay falta de información en una situación problema para tomar una decisión.'] }
+  },
+  soc: {
+    name: 'Sociales y Ciudadanas',
+    1: { range: 'Puntaje 0 – 40', summary: 'Podría reconocer algunos derechos ciudadanos en situaciones sencillas y reconocer factores que generan un conflicto. Probablemente no está en capacidad de utilizar conceptos de las ciencias sociales o modelos conceptuales, ni reconocer principios constitucionales.', items: [] },
+    2: { range: 'Puntaje 41 – 55', summary: 'Reconoce deberes del Estado colombiano y situaciones de protección o vulneración de derechos; identifica relaciones entre conductas y cosmovisiones; reconoce las dimensiones presentes en una situación o propuesta de solución. Contextualiza fuentes y procesos sociales.', items: ['Identifica derechos ciudadanos y deberes del Estado establecidos en la Constitución Política de Colombia.','Relaciona la conducta de una persona con su forma de ver la vida.','Reconoce los efectos de una solución y las dimensiones que privilegia.','Identifica contextos o procesos en los que se inscribe una fuente o evento.'] },
+    3: { range: 'Puntaje 56 – 70', summary: 'Identifica prejuicios o intenciones contenidos en una afirmación y reconoce las dimensiones e intereses involucrados en un problema o alternativa de solución. Identifica conceptos básicos de las ciencias sociales y modelos conceptuales, y valora y contextualiza la información de fuentes.', items: ['Reconoce intenciones y prejuicios, así como argumentos similares o diferentes dados en un contexto específico.','Identifica dimensiones (económicas, políticas, culturales, ambientales, etc.) involucradas en situaciones, problemáticas o propuestas de solución.','Identifica y compara opiniones e intereses de diferentes actores involucrados en una situación problemática.','Reconoce algunos conceptos básicos de las ciencias sociales.','Identifica supuestos y usos de algunos modelos conceptuales.','Relaciona contextos históricos y/o geográficos con fuentes, situaciones y prácticas sociales.','Valora la información contenida en una fuente y reconoce sus alcances.'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Conoce disposiciones de la Constitución que posibilitan la participación ciudadana y el control a los poderes públicos; analiza y compara enunciados, intereses y argumentos; y evalúa alternativas de solución a un problema a partir de conceptos básicos de las ciencias sociales.', items: ['Conoce los procedimientos de reforma a la Constitución, los mecanismos de participación ciudadana y las funciones de los organismos de control.','Compara enunciados o argumentos, así como intereses y posiciones de actores en contextos de situaciones problemáticas.','Relaciona propuestas de solución a un problema con su contexto de implementación o sus posibles impactos.','Entiende problemáticas, eventos o procesos sociales a partir del uso de conceptos básicos de las ciencias sociales.','Analiza fuentes (primarias y secundarias) para valorar inferencias o identificar intenciones y características de los actores.','Establece relaciones entre modelos conceptuales y fuentes que los abordan o decisiones sociales que los aplican.'] }
+  },
+  cn: {
+    name: 'Ciencias Naturales',
+    1: { range: 'Puntaje 0 – 40', summary: 'Muy posiblemente alcanza a reconocer información explícita, presentada de manera ordenada en tablas o gráficas, con un lenguaje cotidiano y que implica la lectura de una sola variable independiente. Demuestran un insuficiente desarrollo de la competencia Indagación.', items: [] },
+    2: { range: 'Puntaje 41 – 55', summary: 'Reconoce información suministrada en tablas, gráficas y esquemas de una sola variable independiente, y la asocia con nociones de los conceptos básicos de las ciencias naturales.', items: ['Identifica patrones y características a partir de información presentada en textos, gráficas y tablas.','Relaciona esquemas con nociones básicas del conocimiento científico.','Establece predicciones a partir de datos presentados en tablas, gráficas y esquemas donde se presentan patrones claramente crecientes o decrecientes.','Ordena datos e información en gráficas y tablas.'] },
+    3: { range: 'Puntaje 56 – 70', summary: 'Interrelaciona conceptos, leyes y teorías científicas con información presentada en diversos contextos, en los que intervienen dos o más variables, para hacer inferencias sobre una situación problema o un fenómeno natural.', items: ['Establece relaciones de causa-efecto usando información no suministrada.','Interpreta gráficas, tablas y modelos para hacer predicciones.','Establece relaciones entre conceptos, leyes y teorías científicas con diseños experimentales y sus resultados.','Diferencia entre evidencias y conclusiones.','Plantea hipótesis basadas en evidencias.','Relaciona variables para explicar algunos fenómenos naturales.'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Usa conceptos, teorías o leyes en la solución de situaciones problema que involucran procedimientos, habilidades, conocimientos y un lenguaje propio de las ciencias naturales.', items: ['Plantea preguntas de investigación desde las ciencias naturales a partir de un contexto determinado.','Establece conclusiones derivadas de una investigación.','Contrasta modelos de las ciencias naturales con fenómenos cotidianos.','Resuelve situaciones problema haciendo uso de conceptos, leyes y teorías de las ciencias naturales.','Comunica resultados de procesos de investigación científica.','Analiza fenómenos naturales con base en los procedimientos propios de la investigación científica.'] }
+  },
+  ing: {
+    name: 'Inglés',
+    1: { range: 'Puntaje 0 – 47 (A−)', label: 'A−', summary: 'El estudiante promedio clasificado en este nivel no supera las preguntas de menor complejidad de la prueba.', items: [] },
+    2: { range: 'Puntaje 48 – 57 (A1)', label: 'A1', summary: 'Comprende y utiliza expresiones cotidianas de uso muy frecuente, así como frases sencillas destinadas a satisfacer necesidades inmediatas.', items: ['Puede presentarse a sí mismo y a otros, pedir y dar información personal básica sobre su domicilio, sus pertenencias y las personas que conoce.','Puede relacionarse de forma elemental con su interlocutor siempre que este hable despacio y con claridad.'] },
+    3: { range: 'Puntaje 58 – 67 (A2)', label: 'A2', summary: 'Comprende frases y expresiones de uso frecuente relacionadas con áreas de experiencia que le son especialmente relevantes.', items: ['Sabe comunicarse a la hora de llevar a cabo tareas simples y cotidianas que no requieran más que intercambios sencillos y directos.','Sabe describir en términos sencillos aspectos de su pasado y su entorno, así como cuestiones relacionadas con sus necesidades inmediatas.'] },
+    4: { range: 'Puntaje 68 – 78 (B1)', label: 'B1', summary: 'Comprende los puntos principales de textos claros y en lengua estándar si tratan sobre cuestiones conocidas, ya sea en situaciones de trabajo, de estudio o de ocio.', items: ['Sabe desenvolverse en la mayor parte de las situaciones que pueden surgir durante un viaje por zonas donde se utiliza la lengua.','Es capaz de producir textos sencillos y coherentes sobre temas familiares o en los que tiene un interés personal.','Puede describir experiencias, acontecimientos, deseos y aspiraciones, así como justificar brevemente sus opiniones.'] }
+  }
+};
+
+const NIVEL_COLORS = ['','#856404,#fff3cd','#0c5460,#d1ecf1','#155724,#d4edda','#004085,#cce5ff'];
+
+function showNivelInfo(nivel, subject) {
+  const subjectData = NIVEL_INFO[subject];
+  if (!subjectData || !nivel) return;
+  const data = subjectData[nivel];
+  if (!data) return;
+  const [color, bg] = NIVEL_COLORS[nivel].split(',');
+  const itemsHtml = data.items.length
+    ? `<ul class="nivel-desc-items">${data.items.map(i=>`<li>${i}</li>`).join('')}</ul>`
+    : '';
+  document.getElementById('nivelSheet').innerHTML = `
+    <div class="nivel-sheet-header">
+      <span class="nivel-sheet-badge" style="background:${bg};color:${color}">Nivel ${nivel}</span>
+      <h3>${subjectData.name}</h3>
+      <button class="nivel-sheet-close" onclick="closeNivelModal()">×</button>
+    </div>
+    <div class="nivel-range">${data.range}</div>
+    <div class="nivel-desc-summary">${data.summary}</div>
+    ${itemsHtml}`;
+  document.getElementById('nivelModal').classList.add('show');
+}
+
+function closeNivelModal() {
+  document.getElementById('nivelModal').classList.remove('show');
 }
 
 
@@ -1718,6 +1816,11 @@ if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.se
 </div>
 <div id="cuyAvatarLeft" style="display:none">
   <img id="cuyImgLeft" src="" alt="Incorrecto..." />
+</div>
+
+<!-- Modal Nivel de Desempeño -->
+<div id="nivelModal" onclick="if(event.target===this)closeNivelModal()">
+  <div class="nivel-sheet" id="nivelSheet"></div>
 </div>
 </body>
 </html>
