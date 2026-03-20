@@ -178,10 +178,7 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .fb-correct h3{color:var(--green)}
 .fb-wrong h3{color:var(--red)}
 .fb-content p{font-size:12px;line-height:1.5;color:var(--text-2)}
-.hint-btn{background:none;border:1px dashed rgba(232,160,32,.6);color:#b87d14;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;padding:7px 14px;border-radius:var(--r-sm);cursor:pointer;transition:all .2s;margin-bottom:10px}
-.hint-btn:hover{background:rgba(232,160,32,.1);border-style:solid}
-.hint-box{background:var(--accent-lt);border:1px solid rgba(232,160,32,.35);border-radius:var(--r-sm);padding:10px 13px;font-size:12px;color:#7a5010;line-height:1.5;margin-bottom:10px;display:none}
-.hint-box.show{display:block;animation:fadeUp .3s ease}
+
 
 /* ── Pantalla de resultados ── */
 .result-header{background:var(--primary);border-radius:var(--r);padding:20px;text-align:center;color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
@@ -235,11 +232,12 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .meta-tipo{background:var(--accent-lt);color:#8a5010;margin-left:6px}
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
 .modal-overlay.show{display:flex}
-.modal-box{background:var(--surface);border-radius:var(--r-lg);padding:28px 24px;max-width:360px;width:100%;box-shadow:var(--shadow-lg);text-align:center;animation:fadeUp .25s ease}
-.modal-box h3{font-size:18px;font-weight:900;color:var(--text);margin-bottom:8px}
-.modal-box p{font-size:14px;color:var(--text-2);line-height:1.55;margin-bottom:24px}
+.modal-box{background:var(--surface);border-radius:var(--r-lg);padding:24px;max-width:340px;width:100%;box-shadow:var(--shadow-lg);text-align:center;animation:fadeUp .25s ease}
+.modal-box h3{font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px}
 .modal-actions{display:flex;gap:10px;justify-content:center}
 .modal-actions .btn{flex:1}
+.modal-box .btn{display:flex;align-items:center;padding:12px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;width:100%}
+.modal-box .btn small{font-size:11px;display:block;margin-top:1px}
 .confetti-piece{position:fixed;pointer-events:none;z-index:9999;animation:confettiFall linear forwards}
 @keyframes confettiFall{0%{opacity:1;transform:translateY(-10px) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
 
@@ -934,8 +932,6 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
     <div class="q-text" id="qText"></div>
     <div id="qImgBlock"></div>
     <div class="opts" id="qOpts"></div>
-    <button class="hint-btn" id="hintBtn" onclick="toggleHint()">💡 Ver pista</button>
-    <div class="hint-box" id="hintBox"></div>
     <div class="feedback" id="feedbackBox">
       <span class="fb-icon" id="fbIcon"></span>
       <div class="fb-content"><h3 id="fbTitle"></h3><p id="fbText"></p></div>
@@ -1453,8 +1449,6 @@ function showQuestion(){
   });
   document.getElementById('qOpts').innerHTML=optsHtml;
   // reset
-  document.getElementById('hintBox').className='hint-box';
-  document.getElementById('hintBox').textContent=q.hint;
   document.getElementById('feedbackBox').className='feedback';
   const metaEl=document.getElementById('fbMeta');
   if(metaEl) metaEl.style.display='none';
@@ -1575,11 +1569,6 @@ function selectOpt(idx){
   if(correct) launchConfetti(4);
 }
 
-function toggleHint(){
-  const box=document.getElementById('hintBox');
-  box.classList.toggle('show');
-  if(box.classList.contains('show')) state.hintsUsed++;
-}
 
 function nextQuestion(){
   if(state.current<state.questions.length-1){state.current++;showQuestion();}
@@ -1704,11 +1693,21 @@ if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.se
 </footer>
 <div class="modal-overlay" id="modalBack" onclick="if(event.target===this)closeModal()">
   <div class="modal-box">
-    <h3>⚠️ ¿Terminar simulacro?</h3>
-    <p>Perderás el progreso actual de esta prueba.</p>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">Continuar</button>
-      <a class="btn btn-primary" href="../index.html">Salir al portal</a>
+    <h3>⚠️ ¿Qué deseas hacer?</h3>
+    <p style="color:var(--text-2);font-size:13px;margin-bottom:16px">Elige una opción para continuar.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;text-align:left" onclick="closeModal()">
+        <span style="font-size:18px">▶️</span>
+        <span><strong>Continuar simulacro</strong><br><small style="font-weight:400;opacity:.75">Seguir desde donde estaba</small></span>
+      </button>
+      <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;text-align:left" onclick="closeModal();showIntro()">
+        <span style="font-size:18px">🔄</span>
+        <span><strong>Ir al inicio del simulacro</strong><br><small style="font-weight:400;opacity:.75">Seleccionar otra asignatura</small></span>
+      </button>
+      <a class="btn btn-primary" href="../index.html" style="justify-content:flex-start;gap:10px;text-align:left;text-decoration:none">
+        <span style="font-size:18px">🏠</span>
+        <span><strong>Salir al portal</strong><br><small style="font-weight:400;opacity:.75">Volver a la página principal</small></span>
+      </a>
     </div>
   </div>
 </div>
