@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#1a3a5c">
+<meta name="description" content="Simulador SABER 11 - Matemáticas 2020 - Secretaría de Educación de Nariño">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SABER 11 Mat 2020">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Simulador SABER 11° · Matemáticas 2020 · Nariño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f6f8fa;--surface:#ffffff;--primary:#1a3a5c;--primary-lt:#e8eef5;--accent:#e8a020;--accent-lt:#fef3d7;--green:#1e8a4a;--green-lt:#d4f0e2;--red:#c0392b;--red-lt:#fde8e6;--text:#111827;--text-2:#4b5563;--text-3:#9ca3af;--border:#e5e7eb;--muted:#6b7280;--shadow-sm:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);--shadow-md:0 4px 12px rgba(0,0,0,.08),0 2px 4px rgba(0,0,0,.05);--shadow-lg:0 10px 30px rgba(0,0,0,.1),0 4px 8px rgba(0,0,0,.06);--r:12px;--r-sm:8px;--r-lg:16px}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--primary)}
+body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text);overflow-x:hidden;-webkit-font-smoothing:antialiased;min-height:100vh}
+.top-bar{background:var(--primary);padding:0;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.top-inner{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;max-width:1100px;margin:0 auto}
+.logo-gov{display:flex;align-items:center}
+.sed-logo-wrap{background:#fff;border-radius:var(--r-sm);padding:5px 10px;display:flex;align-items:center;height:40px}
+.sed-logo{height:28px;width:auto;flex-shrink:0;display:block}
+@media(max-width:480px){.sed-logo{height:24px}.sed-logo-wrap{padding:4px 8px;height:36px}}
+.escudo-icon{height:36px;width:auto;flex-shrink:0;display:block}
+.app{max-width:1100px;margin:0 auto;padding:14px 12px 70px}
+.screen{display:none;animation:fadeUp .3s ease}
+.screen.active{display:block}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:var(--shadow-sm);border:1px solid var(--border)}
+@media(min-width:768px){.app-inner{padding:20px 24px 80px}.card{padding:24px;margin-bottom:16px}}
+@media(min-width:1024px){.app-inner{padding:28px 32px 90px}.card{padding:28px;margin-bottom:20px}}
+.home-hero{text-align:center;padding:12px 4px 16px}
+.home-hero h1{font-size:clamp(20px,4vw,36px);font-weight:900;color:var(--primary);line-height:1.15;margin-bottom:6px}
+.home-hero p{color:var(--text-2);font-size:clamp(13px,1.5vw,15px);line-height:1.5;max-width:520px;margin:0 auto}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:16px}
+.subj-card{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:12px 10px;text-align:center;cursor:pointer;transition:all .2s ease;box-shadow:var(--shadow-sm)}
+.subj-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md);border-color:#c5cdd8}
+.subj-card.active-subj{border-width:2px;transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.subj-icon{font-size:26px;margin-bottom:6px;display:block}
+.subj-name{font-size:12px;font-weight:800;color:var(--text);line-height:1.3}
+.subj-count{font-size:11px;color:var(--text-3);margin-top:3px}
+.s-mat.active-subj{border-color:#1a3a5c;background:var(--primary-lt)}
+@media(min-width:768px){.home-hero{padding:20px 8px 24px}.subject-grid{grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px}.subj-card{padding:20px 14px}.subj-icon{font-size:32px;margin-bottom:10px}.subj-name{font-size:13px}}
+.btn{display:inline-flex;align-items:center;gap:7px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:700;padding:10px 20px;border-radius:var(--r-sm);border:none;cursor:pointer;transition:all .18s;letter-spacing:.2px;line-height:1}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(26,58,92,.25)}
+.btn-primary:hover{background:#1f4570;transform:translateY(-1px);box-shadow:0 5px 16px rgba(26,58,92,.3)}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-accent:hover{background:#d4911a;transform:translateY(-1px)}
+.btn-outline{background:var(--surface);color:var(--primary);border:2px solid var(--border)}
+.btn-outline:hover{border-color:var(--primary);background:var(--primary-lt)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important;box-shadow:none!important}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+@media(min-width:768px){.btn{font-size:15px;padding:12px 26px}.actions{gap:12px;margin-top:10px}}
+@media(max-width:500px){.btn{width:100%;justify-content:center}.actions{flex-direction:column}}
+.badge-saber{background:var(--accent);color:#fff;font-size:12px;font-weight:800;padding:6px 13px;border-radius:20px;white-space:nowrap;letter-spacing:.5px;border:none}
+.prog-wrap{background:var(--border);border-radius:4px;height:4px;margin-bottom:14px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),#f7d070);border-radius:4px;transition:width .5s ease}
+.stepper{display:flex;gap:4px;margin-bottom:14px;align-items:center}
+.step-dot{flex:1;height:3px;border-radius:2px;background:var(--border);transition:all .3s}
+.step-dot.done{background:var(--green)}
+.step-dot.current{background:var(--accent)}
+.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.q-subject-tag{font-size:10px;font-weight:800;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.6px}
+.tag-mat{background:var(--primary-lt);color:var(--primary)}
+.q-num{font-family:'Space Mono',monospace;font-size:11px;color:var(--text-3)}
+.q-context{background:#fffdf7;border:1px solid #f0d88a;border-left:4px solid var(--accent);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:14px 18px;margin-bottom:16px;font-size:14px;line-height:1.75;color:var(--text)}
+.q-text{font-size:15px;font-weight:700;line-height:1.5;margin-bottom:14px;color:var(--text)}
+@media(min-width:768px){.q-meta{margin-bottom:14px}.q-context{padding:14px 18px;margin-bottom:16px;font-size:14px}.q-text{font-size:16px;margin-bottom:18px}}
+.q-figure{margin:10px 0;text-align:center}
+.q-figure img{max-width:100%;border-radius:var(--r-sm);border:1px solid var(--border);display:block;margin:0 auto;background:#fff}
+.q-figure figcaption{font-size:11px;color:var(--text-3);margin-top:4px;font-style:italic}
+.q-img{max-width:100%;width:100%;border-radius:var(--r-sm);border:1px solid var(--border);display:block;background:#fff}
+.opts{display:grid;gap:7px;margin-bottom:14px}
+.opt{display:flex;align-items:center;gap:11px;background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:11px 13px;cursor:pointer;transition:all .18s;text-align:left;width:100%;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;color:var(--text);line-height:1.4}
+.opt:hover:not(:disabled){border-color:#93adc8;background:var(--primary-lt);transform:translateX(2px)}
+.opt.selected{border-color:var(--primary);background:var(--primary-lt)}
+.opt.correct{border-color:var(--green)!important;background:var(--green-lt)!important}
+.opt.wrong{border-color:var(--red)!important;background:var(--red-lt)!important}
+.opt:disabled{cursor:default}
+.opt-letter{width:26px;height:26px;min-width:26px;border-radius:var(--r-sm);background:var(--border);display:flex;align-items:center;justify-content:center;font-family:'Space Mono',monospace;font-size:11px;font-weight:700;color:var(--text-2);transition:all .18s;flex-shrink:0}
+.opt.selected .opt-letter{background:var(--primary);color:#fff}
+.opt.correct .opt-letter{background:var(--green);color:#fff}
+.opt.wrong .opt-letter{background:var(--red);color:#fff}
+@media(min-width:768px){.opts{gap:9px;margin-bottom:18px}.opt{padding:13px 16px;font-size:15px}.opt-letter{width:28px;height:28px;min-width:28px}}
+.feedback{border-radius:var(--r);padding:11px 14px;margin-bottom:12px;display:none;animation:fadeUp .3s ease}
+.feedback.show{display:flex;gap:10px;align-items:flex-start}
+.fb-correct{background:var(--green-lt);border:1px solid rgba(30,138,74,.25)}
+.fb-wrong{background:var(--red-lt);border:1px solid rgba(192,57,43,.25)}
+.fb-icon{font-size:20px;flex-shrink:0}
+.fb-content h3{font-size:13px;font-weight:800;margin-bottom:2px}
+.fb-correct h3{color:var(--green)}
+.fb-wrong h3{color:var(--red)}
+.fb-content p{font-size:12px;line-height:1.5;color:var(--text-2)}
+.result-header{background:var(--primary);border-radius:var(--r);padding:20px;text-align:center;color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
+.result-header::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at 70% 20%,rgba(255,255,255,.07),transparent 60%);pointer-events:none}
+.result-header h2{font-size:19px;font-weight:900;margin-bottom:4px}
+.result-header p{opacity:.75;font-size:13px}
+.global-score{background:rgba(255,255,255,.1);border-radius:var(--r-sm);padding:14px 20px;margin-top:12px;display:inline-block;min-width:160px;max-width:100%;border:1px solid rgba(255,255,255,.15)}
+.global-score .pts{font-family:'Space Mono',monospace;font-size:clamp(28px,8vw,40px);font-weight:700;color:#fff;display:block;line-height:1;word-break:break-all}
+.global-score .pts-label{font-size:10px;color:rgba(255,255,255,.65);text-transform:uppercase;letter-spacing:1.2px;margin-top:3px;display:block}
+.score-table{width:100%;border-collapse:collapse;margin-bottom:0}
+.score-table th{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);padding:8px 10px;text-align:left;border-bottom:2px solid var(--border)}
+.score-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px}
+.score-table tr:last-child td{border-bottom:none}
+.score-bar-wrap{background:var(--border);border-radius:4px;height:6px;width:100%;overflow:hidden}
+.score-bar{height:100%;border-radius:4px;transition:width 1s ease}
+.level-pill{font-size:10px;font-weight:800;padding:3px 9px;border-radius:20px;display:inline-block;white-space:nowrap}
+.lv1{background:var(--red-lt);color:var(--red)}
+.lv2{background:var(--accent-lt);color:#8a5010}
+.lv3{background:var(--green-lt);color:var(--green)}
+.lv4{background:var(--primary-lt);color:var(--primary)}
+.subj-intro{text-align:center;padding:14px 0}
+.subj-intro .big-icon{font-size:48px;display:block;margin-bottom:10px;animation:bounce 2s ease-in-out infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.subj-intro h2{font-size:20px;font-weight:900;color:var(--primary);margin-bottom:6px}
+.subj-intro p{color:var(--text-2);font-size:14px;line-height:1.55;max-width:440px;margin:0 auto 16px}
+.info-chips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 11px;font-size:11px;font-weight:700;color:var(--primary)}
+#fbMeta{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:14px 16px;margin-bottom:14px;font-size:12px;box-shadow:var(--shadow-sm)}
+.meta-table{width:100%;border-collapse:collapse}
+.meta-table tr{border-bottom:1px solid var(--border)}
+.meta-table tr:last-child{border-bottom:none}
+.meta-table td{padding:7px 0;font-size:12.5px;line-height:1.5;vertical-align:top}
+.meta-table td:first-child{font-weight:800;color:var(--text-2);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding:7px 14px 7px 0;white-space:nowrap;vertical-align:top;width:1%}
+.nivel-clickable{cursor:pointer;transition:opacity .15s}
+.nivel-clickable:hover{opacity:.82}
+#nivelModal{position:fixed;inset:0;background:rgba(0,0,0,.52);z-index:20000;display:none;align-items:flex-end;justify-content:center;padding:0}
+#nivelModal.show{display:flex}
+.nivel-sheet{background:var(--surface);border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;padding:24px 20px 32px;animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.nivel-sheet-header{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.nivel-sheet-badge{padding:4px 14px;border-radius:20px;font-weight:900;font-size:14px}
+.nivel-sheet h3{font-size:16px;font-weight:900;color:var(--text);flex:1}
+.nivel-sheet-close{background:none;border:none;font-size:22px;color:var(--text-2);cursor:pointer;line-height:1;padding:2px 6px;border-radius:6px}
+.nivel-sheet-close:hover{background:var(--bg)}
+.nivel-desc-summary{font-size:13.5px;color:var(--text);line-height:1.6;margin-bottom:14px;padding:10px 14px;background:var(--bg);border-radius:var(--r-sm);border-left:3px solid var(--primary)}
+.nivel-range{font-size:11px;color:var(--text-3);margin-top:4px;margin-bottom:10px;font-weight:600}
+.nivel-desc-items{list-style:none;padding:0;margin:0}
+.nivel-desc-items li{font-size:13px;color:var(--text-2);padding:5px 0 5px 20px;position:relative;border-bottom:1px solid var(--border);line-height:1.5}
+.nivel-desc-items li:last-child{border-bottom:none}
+.nivel-desc-items li::before{content:'•';position:absolute;left:6px;color:var(--primary);font-weight:700}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal-box{background:var(--surface);border-radius:var(--r-lg);padding:24px;max-width:340px;width:100%;box-shadow:var(--shadow-lg);text-align:center;animation:fadeUp .25s ease}
+.modal-box h3{font-size:17px;font-weight:900;color:var(--text);margin-bottom:4px}
+.modal-actions{display:flex;gap:10px;justify-content:center}
+.modal-actions .btn{flex:1}
+.modal-box .btn{display:flex;align-items:center;padding:12px 16px;border-radius:var(--r-sm);font-size:13px;font-weight:700;cursor:pointer;transition:all .18s;width:100%}
+.modal-box .btn small{font-size:11px;display:block;margin-top:1px}
+.confetti-piece{position:fixed;pointer-events:none;z-index:9999;animation:confettiFall linear forwards}
+@keyframes confettiFall{0%{opacity:1;transform:translateY(-10px) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)}}
+@media(max-width:600px){.subject-grid{grid-template-columns:1fr 1fr}}
+@media(min-width:768px){.subj-intro{padding:28px 0}.subj-intro .big-icon{font-size:60px;margin-bottom:14px}.subj-intro h2{font-size:24px}.subj-intro p{font-size:15px;margin-bottom:24px}.info-chips{margin-bottom:24px}.result-header{padding:28px;margin-bottom:16px}.result-header h2{font-size:22px}.global-score{padding:18px 24px;margin-top:16px}.global-score .pts{font-size:48px}.score-table th{padding:10px 12px}.score-table td{padding:11px 12px;font-size:14px}.feedback{padding:14px 18px;margin-bottom:14px}.prog-wrap{margin-bottom:18px}.stepper{margin-bottom:18px}}
+#cuyAvatar{position:fixed;bottom:-300px;right:16px;width:155px;z-index:99999;transition:bottom .6s cubic-bezier(.34,1.56,.64,1);pointer-events:none;filter:drop-shadow(0 8px 20px rgba(0,0,0,.35))}
+#cuyAvatar.show{bottom:0px}
+#cuyAvatarLeft{position:fixed;bottom:-300px;left:16px;width:155px;z-index:99999;transition:bottom .6s cubic-bezier(.34,1.56,.64,1);pointer-events:none;filter:drop-shadow(0 8px 20px rgba(0,0,0,.35))}
+#cuyAvatarLeft.show{bottom:0px}
+#cuyAvatar img,#cuyAvatarLeft img{width:100%;height:auto;display:block}
+@media(max-width:480px){#cuyAvatar{width:125px;right:6px}#cuyAvatarLeft{width:125px;left:6px}}
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-inner">
+    <div class="logo-gov">
+      <a href="../index.html" title="Volver al portal" style="text-decoration:none;display:flex"><div class="sed-logo-wrap"><svg class="sed-logo" viewBox="0 0 205.77 34.98" xmlns="http://www.w3.org/2000/svg"><defs><style>.cls-1,.cls-2,.cls-3,.cls-4,.cls-5,.cls-6,.cls-7,.cls-8,.cls-9,.cls-10,.cls-11,.cls-12,.cls-13,.cls-14,.cls-15,.cls-16,.cls-17,.cls-18,.cls-19,.cls-20,.cls-21,.cls-22,.cls-23,.cls-24,.cls-25{stroke-width:0px}.cls-1,.cls-6,.cls-8,.cls-11,.cls-14,.cls-15,.cls-19,.cls-21,.cls-23,.cls-24{fill-rule:evenodd}.cls-1,.cls-17{fill:#e5e5e4}.cls-2,.cls-11{fill:#010101}.cls-3,.cls-14{fill:#ffd504}.cls-4{fill:#e52327}.cls-5,.cls-21{fill:#714e26}.cls-6,.cls-12{fill:#18a13b}.cls-7{fill:none}.cls-8,.cls-22{fill:#eeeded}.cls-9{fill:#b3b2b2}.cls-10{fill:#3d3d3b}.cls-13,.cls-27{fill:#383938}.cls-15{fill:#fff}.cls-16{fill:#1e1e1c}.cls-18{fill:#8fcaf0}.cls-19{fill:#dadada}.cls-20{fill:#585857}.cls-27{font-family:HindMadurai-SemiBold,'Hind Madurai';font-size:11.29px;font-weight:600}.cls-23,.cls-25{fill:#0a72b9}.cls-24{fill:#996634}</style><clipPath id="clippath"><rect class="cls-7" x="16.5" y="10.86" width="0.09" height="0.1"></rect></clipPath><clipPath id="clippath-1"><rect class="cls-7" x="19.37" y="10.91" width="0.09" height="0.1"></rect></clipPath></defs><path class="cls-10" d="m115.02.09h.24v34.81h-.24z"></path><g aria-label="Secretaría" transform="translate(121.21,14.86)"><path d="m6.76-7.97v1.74q-.68-.21-1.32-.15-.64-.15-1.22-.15q-.76 0-1.12.21-.36.21-.36.65q0 .33.24.52.25.18.89.31l.9.18q1.37.28 1.95.84.58.56.58 1.6 0 1.36-.81 2.03-.8.66-2.46.66-.78 0-1.57-.15-1.57-.29-2.36-.58v-1.79q.79.42 1.52.63.74.21 1.42.21.69 0 1.06-.23.37-.23.37-.66 0-.39-.25-.6-.26-.22-.75-.39l-.82-.18q-1.23-.26-1.81-.85-.58-.58-.58-1.56 0-1.23.79-1.89.79-.66 2.28-.66.68 0 1.39.1.72.1 1.48.3z"></path><path d="m15.24-3.1v.56h-4.61q.07.69.5 1.04.43.35 1.2.35.62 0 1.27-.18.66-.19 1.35-.56v1.52q-.7.26-1.4.4-.7.14-1.4.14-1.68 0-2.61-.85-.93-.85-.93-2.39 0-1.51.91-2.38.92-.87 2.51-.87 1.46 0 2.33.88.88.87.88 2.34zm-2.03-.66q0-.56-.33-.9-.33-.35-.85-.35-.57 0-.93.33-.36.32-.45.93z"></path><path d="m21.73-5.98v1.61q-.4-.28-.81-.41-.4-.13-.84-.13-.83 0-1.29.49-.46.48-.46 1.35 0 .87.46 1.35.46.48 1.29.48.46 0 .88-.14.42-.14.77-.41v1.62q-.46.17-.94.25-.47.09-.95.09-1.67 0-2.61-.85-.94-.86-.94-2.39 0-1.53.94-2.38.94-.86 2.61-.86.49 0 .95.09.47.08.94.25z"></path><path d="m28.02-4.49q-.26-.12-.52-.18-.25-.06-.51-.06-.76 0-1.17.49-.41.49-.41 1.39v1.85h-1.97v-6.17h1.97v1.01q.38-.61.87-.88.5-.28 1.19-.28.1 0 .21.01.12.01.34.03z"></path><path d="m35.16-3.1v.56h-4.61q.07.69.5 1.04.43.35 1.2.35.62 0 1.27-.18.66-.19 1.35-.56v1.52q-.7.26-1.4.4-.7.14-1.4.14-1.68 0-2.61-.85-.93-.85-.93-2.39 0-1.51.91-2.38.92-.87 2.51-.87 1.46 0 2.33.88.88.87.88 2.34zm-2.03-.66q0-.56-.33-.9-.33-.35-.85-.35-.57 0-.93.33-.36.32-.45.93z"></path><path d="m38.81-7.93v1.75h2.03v1.41h-2.03v2.62q0 .43.17.58.17.15.68.15h1.01v1.75h-1.84q-1.17 0-1.66-.49-.49-.49-.49-1.66v-2.62h-.98v-1.41h.98v-1.75z"></path><path d="m44.82-2.78q-.62 0-.93.21-.31.21-.31.62 0 .37.25.59.25.21.7.21.56 0 .94-.4.38-.4.38-1v-.23zm3.02-.74v1.75h-1.99v-.92q-.4.56-.89.82-.5.25-1.21.25-.96 0-1.56-.56-.6-.56-.6-1.46 0-1.09.74-1.59.75-.51 2.35-.51h1.16v-.48q0-.47-.37-.68-.37-.22-1.15-.22-.63 0-1.18.13-.55.13-1.01.38v-1.5q.63-.15 1.27-.23.64-.08 1.28-.08 1.67 0 2.41.66.74.66.74 2.14z"></path><path d="m54.26-4.49q-.26-.12-.52-.18-.25-.06-.51-.06-.76 0-1.17.49-.41.49-.41 1.39v1.85h-1.97v-6.17h1.97v1.01q.38-.61.87-.88.5-.28 1.19-.28.1 0 .21.01.12.01.34.03z"></path><path d="m55.24-6.17h1.97v6.17h-1.97zm1.86-2.86h1.56l-2.03 2.07h-1.08z"></path><path d="m61.87-2.78q-.62 0-.93.21-.31.21-.31.62 0 .37.25.59.25.21.7.21.56 0 .94-.4.38-.4.38-1v-.23zm3.02-.74v1.75h-1.99v-.92q-.4.56-.89.82-.5.25-1.21.25-.96 0-1.56-.56-.6-.56-.6-1.46 0-1.09.74-1.59.75-.51 2.35-.51h1.16v-.48q0-.47-.37-.68-.37-.22-1.15-.22-.63 0-1.18.13-.55.13-1.01.38v-1.5q.63-.15 1.27-.23.64-.08 1.28-.08 1.67 0 2.41.66.74.66.74 2.14z"></path></g><g aria-label="de Educación" transform="translate(121.21,27.15)"><path d="m5.15-5.27v-3.31h1.98v6.31h-1.98v-.89q-.41.55-.9.8-.49.25-1.14.25-1.14 0-1.87-.9-.73-.91-.73-2.34 0-1.43.73-2.33.73-.91 1.87-.91.64 0 1.13.26.5.25.9.79zm-1.3 4q.63 0 .96-.46.34-.46.34-1.35 0-.88-.34-1.35-.33-.46-.96-.46-.63 0-.96.46-.33.46-.33 1.35 0 .88.33 1.35.33.46.96.46z"></path><path d="m15.19-3.1v.56h-4.61q.07.69.5 1.04.43.35 1.2.35.62 0 1.27-.18.66-.19 1.35-.56v1.52q-.7.26-1.4.4-.7.14-1.4.14-1.68 0-2.61-.85-.93-.85-.93-2.39 0-1.51.91-2.38.92-.87 2.51-.87 1.46 0 2.33.88.88.87.88 2.34zm-2.03-.66q0-.56-.33-.9-.33-.35-.85-.35-.57 0-.93.33-.36.32-.45.93z"></path><path d="m20.71-8.23h5.73v1.6h-3.61v1.53h3.39v1.6h-3.39v1.89h3.73v1.84h-5.85z"></path><path d="m32.53-5.27v-3.31h1.98v6.31h-1.98v-.89q-.41.55-.9.8-.49.25-1.14.25-1.14 0-1.87-.9-.73-.91-.73-2.34 0-1.43.73-2.33.73-.91 1.87-.91.64 0 1.13.26.5.25.9.79zm-1.3 4q.63 0 .96-.46.34-.46.34-1.35 0-.88-.34-1.35-.33-.46-.96-.46-.63 0-.96.46-.33.46-.33 1.35 0 .88.33 1.35.33.46.96.46z"></path><path d="m36.35-2.4v-3.77h1.98v.62q0 .5-.01 1.26-.01.76-.01 1.01 0 .74.04 1.07.04.33.13.47.12.19.31.3.2.1.45.1.62 0 .97-.47.35-.47.35-1.32v-3.05h1.97v4.89h-1.97v-.89q-.45.54-.95.8-.5.25-1.1.25-1.07 0-1.63-.66-.56-.66-.56-1.66z"></path><path d="m49.44-5.98v1.61q-.4-.28-.81-.41-.4-.13-.84-.13-.83 0-1.29.49-.46.48-.46 1.35 0 .87.46 1.35.46.48 1.29.48.46 0 .88-.14.42-.14.77-.41v1.62q-.46.17-.94.25-.47.09-.95.09-1.67 0-2.61-.85-.94-.86-.94-2.39 0-1.53.94-2.38.94-.86 2.61-.86.49 0 .95.09.47.08.94.25z"></path><path d="m53.91-2.78q-.62 0-.93.21-.31.21-.31.62 0 .37.25.59.25.21.7.21.56 0 .94-.4.38-.4.38-1v-.23zm3.02-.74v1.75h-1.99v-.92q-.4.56-.89.82-.5.25-1.21.25-.96 0-1.56-.56-.6-.56-.6-1.46 0-1.09.74-1.59.75-.51 2.35-.51h1.16v-.48q0-.47-.37-.68-.37-.22-1.15-.22-.63 0-1.18.13-.55.13-1.01.38v-1.5q.63-.15 1.27-.23.64-.08 1.28-.08 1.67 0 2.41.66.74.66.74 2.14z"></path><path d="m63.75-5.98v1.61q-.4-.28-.81-.41-.4-.13-.84-.13-.83 0-1.29.49-.46.48-.46 1.35 0 .87.46 1.35.46.48 1.29.48.46 0 .88-.14.42-.14.77-.41v1.62q-.46.17-.94.25-.47.09-.95.09-1.67 0-2.61-.85-.94-.86-.94-2.39 0-1.53.94-2.38.94-.86 2.61-.86.49 0 .95.09.47.08.94.25z"></path><path d="m65.45-6.17h1.97v6.17h-1.97zm0-2.4h1.97v1.61h-1.97z"></path><path d="m72.26-4.91q-.66 0-1 .47-.34.47-.34 1.36 0 .89.34 1.36.34.47 1 .47.64 0 .99-.47.34-.47.34-1.36 0-.89-.34-1.36-.35-.47-.99-.47zm0-1.41q1.59 0 2.49.86.9.86.9 2.38 0 1.52-.9 2.38-.9.86-2.49.86-1.6 0-2.5-.86-.9-.86-.9-2.38 0-1.52.9-2.38.9-.86 2.5-.86zm.87-2.71h1.56l-2.03 2.07h-1.08z"></path><path d="m83.29-3.76v3.76h-1.98v-3.49q0-.8-.04-1.1-.03-.3-.12-.45-.12-.19-.31-.3-.2-.11-.45-.11-.62 0-.97.48-.35.47-.35 1.32v3.05h-1.97v-6.17h1.97v.9q.45-.54.95-.79.5-.26 1.11-.26 1.07 0 1.62.66.56.66.56 1.91z"></path></g><g><path class="cls-13" d="m43.92 5.28c.37 0 .71.03 1 .09.3.06.57.15.81.26l-.33.86c-.23-.11-.46-.19-.7-.24-.24-.05-.49-.07-.73-.07-.27 0-.53.04-.78.13-.24.09-.46.22-.65.41-.19.19-.33.42-.44.71-.11.29-.16.64-.16 1.06 0 .74.16 1.3.49 1.69.33.39.8.59 1.41.59.38 0 .68-.04.9-.13v-1.36h-1.07v-.9h2.2v3.07c-.26.11-.56.2-.89.27-.33.07-.71.1-1.14.1-.43 0-.86-.07-1.25-.21-.39-.14-.73-.34-1.01-.61-.29-.27-.51-.6-.68-.99-.16-.39-.24-.85-.24-1.37 0-.52.08-.97.24-1.37.16-.4.39-.73.67-1 .28-.27.62-.47 1.01-.61.39-.14.81-.21 1.26-.21"></path><path class="cls-13" d="m51.52 9.18c0 .38-.06.73-.18 1.04-.12.31-.29.56-.5.77-.22.21-.47.37-.75.48-.29.11-.6.17-.93.17-.33 0-.64-.05-.92-.16-.28-.1-.53-.26-.74-.46-.21-.2-.37-.45-.49-.74-.12-.29-.18-.63-.18-1.01 0-.38.06-.74.18-1.05.12-.31.29-.57.5-.78.22-.21.47-.37.75-.48.29-.11.6-.17.93-.17.33 0 .64.05.92.15.28.1.53.25.74.46.21.2.37.45.49.74.12.29.18.64.18 1.03m-1.19.04c0-.28-.03-.52-.1-.72-.07-.19-.15-.35-.26-.48-.11-.13-.23-.22-.37-.28-.14-.06-.29-.09-.44-.09-.15 0-.29.03-.43.08-.14.05-.26.14-.37.25-.1.12-.19.28-.26.48-.06.2-.1.45-.1.75 0 .27.03.51.1.7.07.19.15.35.26.48.11.13.23.22.37.28.14.06.29.09.44.09.15 0 .29-.03.43-.08.14-.05.26-.14.37-.25.1-.12.19-.28.26-.47.06-.2.1-.45.1-.74"></path><path class="cls-13" d="m56.99 9.23c0 .37-.06.71-.17 1-.11.3-.26.55-.46.76-.2.21-.43.37-.69.48-.26.11-.55.17-.85.17-.3 0-.57-.04-.79-.13-.22-.09-.42-.22-.59-.4h-.03l-.09.43h-.83v-6.97h1.14v2.77c.18-.17.39-.3.62-.4.23-.09.47-.14.72-.14.62 0 1.11.21 1.47.64.36.43.54 1.02.54 1.79m-1.19.02c0-.49-.1-.87-.3-1.14-.2-.27-.48-.41-.84-.41-.2 0-.39.05-.56.15-.17.1-.32.22-.44.35v2.17c.1.12.23.22.37.29.14.07.31.11.49.11.16 0 .32-.03.48-.09.16-.06.29-.15.41-.28.12-.13.21-.29.28-.47.07-.19.11-.42.11-.69"></path><path class="cls-13" d="m62.02 9.47h-3.16v.04c0 .42.13.74.4.95.26.21.61.31 1.04.31.25 0 .48-.02.68-.07.2-.05.39-.11.57-.19l.23.81c-.19.09-.41.16-.67.22-.26.06-.56.09-.91.09-.35 0-.67-.05-.97-.14-.3-.09-.57-.23-.8-.43-.23-.2-.41-.44-.54-.74-.13-.3-.2-.66-.2-1.08 0-.37.06-.7.17-1 .11-.3.27-.56.47-.77.2-.21.45-.38.73-.5.29-.12.6-.18.95-.18.62 0 1.11.19 1.48.57.37.38.55.9.55 1.58v.53zm-1.18-.8c0-.14-.02-.27-.05-.4-.03-.13-.09-.24-.16-.34-.07-.1-.16-.17-.28-.23-.12-.06-.25-.08-.41-.08-.29 0-.53.1-.72.29-.19.2-.3.45-.34.77l1.96-.02z"></path><path class="cls-13" d="m62.97 11.54v-4.65h.89l.15.87c.11-.27.29-.49.53-.68.24-.19.54-.28.9-.28.16 0 .29.02.41.05.12.03.22.07.29.11l-.2.94c-.07-.04-.16-.07-.26-.1-.1-.03-.23-.04-.38-.04-.33 0-.61.11-.84.34-.23.23-.34.59-.34 1.09v2.36h-1.14z"></path><path class="cls-13" d="m67.84 11.54h-1.15v-4.65h.9l.15.62c.22-.22.46-.39.71-.52.26-.12.54-.19.85-.19.5 0 .89.14 1.16.42.27.28.41.67.41 1.18v3.14h-1.16v-3c0-.25-.06-.45-.19-.6-.13-.15-.32-.23-.57-.23-.19 0-.38.05-.58.15-.2.1-.38.24-.54.41v3.28z"></path><path class="cls-13" d="m72.13 7.3c.29-.16.58-.28.87-.37.29-.09.62-.13.97-.13.27 0 .52.03.74.09.22.06.41.16.58.3.16.14.29.32.38.53.09.22.13.48.13.8v3.01h-.91l-.12-.49h-.03c-.33.39-.81.59-1.42.59-.49 0-.87-.13-1.14-.39-.27-.26-.41-.59-.41-1 0-.26.06-.49.17-.68.11-.19.26-.35.45-.47.19-.12.42-.22.69-.28.27-.06.56-.09.87-.09h.69v-.74c0-.25-.08-.44-.23-.54-.15-.11-.35-.16-.61-.16-.18 0-.38.03-.58.09-.21.06-.43.16-.68.3zm2.52 2.16-.53.02c-.43.01-.73.09-.9.22-.17.13-.25.29-.25.48 0 .24.07.4.21.49.14.08.31.13.5.13.19 0 .37-.05.54-.14.17-.09.31-.23.43-.4z"></path><path class="cls-13" d="m79.31 10.78c.21 0 .39-.02.55-.07.16-.05.3-.1.41-.16l.23.81c-.14.07-.33.14-.57.2-.23.06-.49.09-.77.09-.35 0-.67-.05-.97-.15-.3-.1-.56-.25-.78-.46-.22-.2-.4-.45-.52-.75-.13-.3-.19-.65-.19-1.05 0-.37.06-.7.18-1 .12-.3.29-.56.51-.77.22-.21.48-.38.78-.49.3-.11.64-.17 1-.17.2 0 .41.02.63.06.21.04.45.12.69.23l-.23-.9c-.15-.08-.3-.15-.46-.2-.16-.05-.32-.07-.49-.07-.43 0-.78.13-1.04.4-.26.26-.39.65-.39 1.15 0 .29.04.54.13.74.09.2.2.37.33.49.14.12.29.21.46.26.17.05.35.08.52.08"></path><path class="cls-13" d="m81.89 5.82c-.2 0-.36-.06-.47-.18-.11-.12-.17-.26-.17-.44 0-.18.06-.31.18-.44.12-.12.27-.18.47-.18.2 0 .34.06.46.18.12.12.18.26.18.44 0 .18-.06.32-.18.44-.12.12-.27.18-.46.18zm-.58 1.07h1.15v4.65h-1.15z"></path><path class="cls-13" d="m88.28 9.18c0 .38-.06.73-.18 1.04-.12.31-.29.56-.5.77-.21.21-.47.37-.75.48-.29.11-.6.17-.93.17-.33 0-.64-.05-.92-.16-.28-.1-.53-.26-.74-.46-.21-.2-.37-.45-.49-.74-.12-.29-.18-.63-.18-1.01 0-.38.06-.74.18-1.05.12-.31.29-.57.5-.78.22-.21.47-.37.75-.48.29-.11.6-.17.93-.17.33 0 .64.05.92.15.28.1.53.25.74.46.21.2.37.45.49.74.12.29.18.64.18 1.03m-1.19.04c0-.28-.03-.52-.1-.72-.07-.19-.15-.35-.26-.48-.11-.13-.23-.22-.37-.28-.14-.06-.29-.09-.44-.09-.15 0-.29.03-.43.08-.14.05-.26.14-.37.25-.1.12-.19.28-.25.48-.06.2-.1.45-.1.75 0 .27.03.51.1.7.07.19.15.35.26.48.11.13.23.22.37.28.14.06.29.09.44.09.15 0 .29-.03.43-.08.14-.05.26-.14.37-.25.1-.12.19-.28.25-.47.07-.2.1-.45.1-.74m-.89-3.08h-.85l.69-1.41h1.2z"></path><path class="cls-13" d="m90.43 11.54h-1.15v-4.65h.9l.15.62c.22-.22.46-.39.71-.52.26-.12.54-.19.85-.19.5 0 .89.14 1.16.42.27.28.41.67.41 1.18v3.14h-1.16v-3c0-.25-.06-.45-.19-.6-.13-.15-.32-.23-.57-.23-.19 0-.38.05-.58.15-.2.1-.38.24-.54.41v3.28z"></path><path class="cls-13" d="m99.95 4.57h1.15v6.97h-.86l-.13-.51h-.04c-.15.18-.33.32-.55.44-.22.11-.49.17-.83.17-.27 0-.53-.05-.78-.16-.25-.1-.46-.26-.65-.47-.19-.21-.33-.46-.44-.76-.11-.3-.16-.65-.16-1.04 0-.37.05-.7.14-.99.09-.3.23-.55.42-.76.18-.21.41-.38.67-.49.26-.11.56-.17.9-.17.23 0 .45.03.65.1.21.07.38.16.51.29zm0 3.51c-.11-.13-.24-.21-.39-.29-.15-.08-.32-.12-.5-.12-.16 0-.32.03-.46.08-.15.06-.28.14-.39.26-.11.12-.21.28-.27.48-.07.2-.1.43-.1.7 0 .27.03.51.09.71.06.2.15.37.25.49.1.13.23.22.37.28.14.06.29.09.45.09.22 0 .4-.05.57-.15.16-.1.3-.23.4-.4v-.94z"></path><path class="cls-13" d="m106.42 9.47h-3.16v.04c0 .42.13.74.4.95.26.21.61.31 1.04.31.25 0 .48-.02.68-.07.2-.05.39-.11.57-.19l.23.81c-.19.09-.41.16-.67.22-.26.06-.56.09-.91.09-.35 0-.67-.05-.97-.14-.3-.09-.57-.23-.8-.43-.23-.2-.41-.44-.54-.74-.13-.3-.2-.66-.2-1.08 0-.37.06-.7.17-1 .11-.3.27-.56.47-.77.2-.21.45-.38.73-.5.29-.12.6-.18.95-.18.62 0 1.11.19 1.48.57.37.38.55.9.55 1.58v.53zm-1.18-.8c0-.14-.02-.27-.05-.4-.03-.13-.09-.24-.16-.34-.07-.1-.16-.17-.28-.23-.12-.06-.25-.08-.41-.08-.29 0-.53.1-.72.29-.19.2-.3.45-.34.77l1.96-.02z"></path><path class="cls-13" d="m83.42 14.62v.02c-.08.18-.15.37-.2.57-.02.08-.04.16-.06.24h-42.02v-.83z"></path><path class="cls-13" d="m106.21 14.62v.84h-14.34c.07-.58.11-.86.13-1.16h14.22z"></path><path class="cls-12" d="m41.14 18.44h2.61l2.58 3.94c.46.71.91 1.44 1.34 2.18.43.74.76 1.41 1 2.01h.04c-.06-.75-.1-1.5-.11-2.25-.01-.75-.02-1.5-.02-2.25v-3.62h2.61v11.77h-2.65l-2.73-4.01c-.45-.66-.86-1.33-1.23-2.02-.37-.68-.69-1.41-.95-2.17h-.04c.06.78.1 1.54.11 2.26.01.72.02 1.46.02 2.2v3.74h-2.58z"></path><path class="cls-12" d="m56.99 18.44h3.02l4.24 11.76h-3.01l-.8-2.52h-3.96l-.8 2.52h-2.97zm.11 7.19h2.69l-.45-1.42c-.15-.46-.3-.95-.46-1.48-.16-.52-.29-1-.4-1.44h-.04c-.12.44-.27.91-.43 1.42-.16.51-.32 1.01-.47 1.49l-.45 1.42z"></path><path class="cls-12" d="m65.82 18.44h4.67c.67 0 1.27.1 1.78.29.52.19.95.46 1.29.79.34.34.6.73.78 1.18.17.45.26.93.26 1.44 0 .51-.07.91-.21 1.28-.14.37-.33.69-.55.96-.22.27-.47.5-.73.67-.26.17-.5.31-.73.41l2.82 4.74h-3.27l-2.09-4.24h-1.18v4.24h-2.84zm2.84 5.38h.86c.65 0 1.17-.13 1.57-.39.4-.26.6-.68.6-1.27 0-.49-.16-.87-.49-1.16-.32-.29-.79-.43-1.4-.43h-1.14z"></path><path class="cls-12" d="m76.71 18.44h2.84v11.76h-2.84z"></path><path class="cls-12" d="m92.43 30.2h-4.11l-2.41-5.84-1.21-3.66h-.08l.19 4.09v5.41h-2.8v-11.76h4.11l2.5 6.07 1.12 3.36h.08l-.19-3.75v-5.68h2.8z"></path><path class="cls-12" d="m100.33 18.21c.85 0 1.63.14 2.35.42.72.28 1.34.68 1.87 1.2.52.52.93 1.16 1.22 1.92.29.76.44 1.62.44 2.58 0 .96-.15 1.77-.46 2.52-.31.75-.72 1.38-1.25 1.91-.53.53-1.16.93-1.89 1.21-.73.28-1.52.42-2.36.42-.84 0-1.63-.14-2.35-.41-.72-.27-1.34-.67-1.87-1.19-.52-.52-.93-1.15-1.22-1.9-.29-.75-.44-1.61-.44-2.57 0-.96.15-1.78.45-2.53.3-.75.72-1.4 1.25-1.93.53-.54 1.17-.95 1.89-1.23.73-.29 1.52-.43 2.36-.43zm-2.97 6.12c0 .66.08 1.24.23 1.74.16.5.37.91.64 1.23.27.32.59.57.94.73.35.16.74.24 1.15.24.41 0 .77-.08 1.13-.24.35-.16.66-.4.92-.73.26-.32.47-.73.62-1.23.15-.5.22-1.08.22-1.74 0-.66-.08-1.28-.23-1.78-.16-.5-.37-.92-.64-1.24-.27-.32-.59-.57-.94-.73-.35-.16-.74-.24-1.15-.24-.41 0-.77.08-1.13.25-.35.17-.66.42-.92.76-.26.34-.47.75-.62 1.25-.15.5-.22 1.08-.22 1.74"></path><path class="cls-12" d="m84.7 16.53c0-.31.04-.6.11-.88.07-.27.19-.51.34-.72.15-.21.33-.37.54-.49.21-.12.45-.18.73-.18.22 0 .43.03.61.09.18.06.35.13.51.21.16.08.32.15.47.21.15.06.31.09.49.09.18 0 .31-.06.4-.18.09-.12.15-.28.16-.49h1.31c0 .68-.15 1.23-.45 1.62-.3.4-.7.6-1.2.6-.24 0-.46-.03-.66-.09-.21-.06-.4-.13-.58-.21-.18-.07-.35-.14-.5-.21-.16-.06-.3-.09-.42-.09-.2 0-.34.07-.41.21-.07.14-.12.3-.13.49h-1.31z"></path></g><g><path class="cls-17" d="m9.6 19.22c.47 3.35 3.14 6.3 6.49 7.02 3.34.81 7.07-.64 8.95-3.5.74-1.05 1.17-2.26 1.35-3.51l-17.2.01s0 .01 0 .02"></path><path class="cls-3" d="m30.93 16.8v-16.8h-25.87c.01 6.22-.02 12.45.02 18.67.2 5.58 4.5 10.68 10 11.86 5.08 1.23 10.78-.98 13.65-5.34 1.72-2.44 2.35-5.46 2.21-8.39m-4.54 2.42s0 0 0 0 0 0 0 0c-.19 1.25-.61 2.46-1.35 3.51-1.88 2.86-5.62 4.31-8.95 3.5-3.35-.72-6.02-3.66-6.49-7.02 0 0 0-.01 0-.02 0 0 0 0 0 0-.03-.25-.06-.5-.07-.75 0-.56 0-1.15 0-1.77 0-.73 0-1.49 0-2.26 0-2.27 0-9.22 0-9.95h16.98v12.75c.03.66 0 1.33-.1 1.99"></path><path class="cls-4" d="m22.68 16.05c1.41-.77 1.16-1.43 3.81-1.61v-.12c0-.02-.08-.04-.17-.05l-.58-.19s0 0 0 0c-.33-.11-.64-.22-.94-.34 0 0-.01 0-.02 0l-.26-.12c-2.05-.88-3.36-2.1-4.27-3.49l-.05-.07s0 0 0 0c-.11-.06-.21-.23-.31-.41l-.02-.03s0 0 0 0c-.04-.07-.08-.14-.12-.22s0 0 0 0l-.09-.2c-.09-.17-.17-.35-.25-.53l-.05-.1s0 0 0 0c-.05-.12-.1-.24-.15-.36-.02-.08-.05-.16-.07-.23l-.12-.27s.01 0 .02 0c-.02-.12-.07-.23-.11-.35-.08-.18-.16-.36-.24-.55v0s-.01-.03-.02-.05c-1.03-2.97-2.83-5.59-7.58-6.88 0 .78 0 1.54 0 2.26 1.44.56 2.43.89 2.49 1.04.3.73.92 1.45 1.22 1.48h4.53s0 0 0 .01h10.59c2-1.26.45-2.57 2.5-3.17"></path><path class="cls-4" d="m24.63 19.22h1.76z"></path><path class="cls-18" d="m17.12 7.49v0c.42-1.16.61-2.01.86-3.02h-.02c-.24.96-.47 1.91-.79 2.85-.02.05-.04.11-.06.17"></path><path class="cls-18" d="m10.15 6.98.59-.23.45-.31.31-.03.11.11.42.26.44.27 1.31.44h3.32c.02.45.04.39.06.33.32-.94.55-1.89.79-2.85h-8.45c0 .88 0 1.83 0 2.84h.01s.62-.32.62-.32z"></path><path class="cls-18" d="m18.93 7.48s0 0 0 0h7.56v-3.02h-8.43c.16.63.32 1.26.5 1.87.12.38.23.76.36 1.14"></path><path class="cls-12" d="m26.49 17.22v-2.78c-2.65.18-2.39.84-3.81 1.61-2.05.6-.5 1.92-2.5 3.17 0 0 0 0-.01 0h4.46s1.76-.01 1.76-.01c.1-.66.13-1.33.1-1.99"></path><path class="cls-12" d="m12 17.73c-.06-.15-1.05-.48-2.49-1.04 0 .61 0 1.21 0 1.77 0 .25.03.5.07.75h3.63c-.3-.03-.92-.74-1.22-1.48"></path><path class="cls-16" d="m26.43 4.53v12.7c.07 1.46-.12 3.6-1.44 5.48-1.5 2.28-4.19 3.7-7.02 3.7-.64 0-1.26-.07-1.87-.22-3.59-.77-6.39-4.1-6.52-7.73-.02-2.56-.01-5.76-.01-8.86 0-1.81 0-3.55 0-5.07zm.06-.06h-16.98c0 4.08-.01 9.89.01 13.98.13 3.67 2.95 7.01 6.56 7.79.62.15 1.25.22 1.88.22 2.77 0 5.54-1.39 7.07-3.73 1.13-1.6 1.54-3.58 1.45-5.51v-12.75z"></path></g></svg></div></a>
+    </div>
+    <span class="badge-saber">Matemáticas 2020</span>
+  </div>
+</div>
+
+<div class="app-inner">
+  <!-- HOME -->
+  <div class="screen active" id="s-home">
+    <div class="card">
+      <div class="home-hero">
+        <h1>Matemáticas · SABER 11° 2020</h1>
+        <p>Simulacro basado en preguntas reales del ICFES del examen SABER 11° del año 2020.</p>
+      </div>
+      <div class="subject-grid">
+        <div class="subj-card s-mat active-subj" onclick="selectSubject('mat')">
+          <span class="subj-icon">📐</span>
+          <div class="subj-name">Matemáticas</div>
+          <div class="subj-count" id="matCount">Cargando...</div>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="btnStart" onclick="startQuiz()" disabled>Iniciar prueba ➜</button>
+        <a class="btn btn-outline" href="../index.html">← Volver al portal</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen" id="s-intro">
+    <div class="card" id="introContent"></div>
+  </div>
+
+  <!-- QUESTION -->
+  <div class="screen" id="s-question">
+    <div class="card">
+      <div class="prog-wrap"><div class="prog-fill" id="progFill"></div></div>
+      <div class="stepper" id="stepperDots"></div>
+      <div class="q-meta">
+        <span class="q-subject-tag tag-mat" id="qTag">Matemáticas</span>
+        <span class="q-num" id="qNum"></span>
+      </div>
+      <div id="qContextBlock"></div>
+      <div id="qImgBlock"></div>
+      <p class="q-text" id="qText"></p>
+      <div class="opts" id="qOpts"></div>
+      <div class="feedback" id="feedbackBox">
+        <span class="fb-icon" id="fbIcon"></span>
+        <div class="fb-content">
+          <h3 id="fbTitle"></h3>
+          <p id="fbText"></p>
+        </div>
+      </div>
+      <div id="fbMeta" style="display:none"></div>
+      <div class="actions" id="qActions" style="display:none">
+        <button class="btn btn-accent" id="btnNext" onclick="nextQuestion()">Siguiente ➜</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="screen" id="s-results">
+    <div id="resultsContent"></div>
+  </div>
+</div>
+
+<footer style="background:var(--primary);color:rgba(255,255,255,.5);text-align:center;padding:16px 24px;font-size:11px;border-top:1px solid rgba(255,255,255,.08)">
+  <p>Fuente: ICFES – Instituto Colombiano para la Evaluación de la Educación. Simulacro 2020.</p>
+</footer>
+
+<div class="modal-overlay" id="modalBack" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <h3>¿Qué deseas hacer?</h3>
+    <p style="color:var(--text-2);font-size:13px;margin-bottom:16px">Elige una opción para continuar.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;text-align:left" onclick="closeModal()">
+        <span style="font-size:18px">▶️</span><span><strong>Continuar simulacro</strong><br><small style="font-weight:400;opacity:.75">Seguir desde donde estaba</small></span>
+      </button>
+      <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;text-align:left" onclick="closeModal();showIntro()">
+        <span style="font-size:18px">🔄</span><span><strong>Reiniciar prueba</strong><br><small style="font-weight:400;opacity:.75">Comenzar de nuevo</small></span>
+      </button>
+      <a class="btn btn-primary" href="../index.html" style="justify-content:flex-start;gap:10px;text-align:left;text-decoration:none">
+        <span style="font-size:18px">🏠</span><span><strong>Salir al portal</strong><br><small style="font-weight:400;opacity:.75">Volver a la página principal</small></span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div id="cuyAvatar"><img id="cuyImg" src="" alt="¡Correcto!"></div>
+<div id="cuyAvatarLeft" style="display:none"><img id="cuyImgLeft" src="" alt="Incorrecto..."></div>
+
+<div id="nivelModal" onclick="if(event.target===this)closeNivelModal()">
+  <div class="nivel-sheet" id="nivelSheet"></div>
+</div>
+
+<script>
+/* ════════════ QB - Matemáticas 2020 ════════════ */
+const QB = {
+  mat:{
+    name:"Matemáticas",icon:"📐",tag:"tag-mat",color:"#1a3a5c",
+    desc:"Evalúa competencias de interpretación, formulación y argumentación en contextos matemáticos reales.",
+    competencias:["Interpretación y representación","Formulación y ejecución","Argumentación"],
+    questions:[
+      {id:1,
+       context:"En una bolsa hay 3 bolas rojas, 3 negras y 12 blancas. Una persona afirma que al sacar una bola al azar, los tres colores tienen la misma probabilidad de salir.",
+       text:"Esta afirmación es",
+       opts:["A. verdadera, pues el número de bolas de cada color no importa.","B. falsa, pues no se sabe el número total de bolas en la bolsa.","C. falsa, pues hay más bolas de un color que de los otros dos.","D. verdadera, pues las bolas están repartidas de igual manera."],
+       correct:2,hint:"Observa cuántas bolas hay de cada color en la bolsa.",
+       comp:"Argumentación · Valida procedimientos y estrategias matemáticas.",
+       nivel:2,
+       explain:"En la bolsa hay en total 18 bolas y, por tanto, la probabilidad de seleccionar al azar una roja es de 3/18; una negra, de 3/18; una blanca, de 12/18. Luego, como 12 > 3, entonces el color blanco tiene una mayor probabilidad de ser elegido al azar. Por lo tanto, la afirmación de que los tres colores tienen la misma probabilidad es falsa."},
+      {id:2,
+       context:"Con respecto a la vertical, la torre se ha inclinado 4° como se muestra en la gráfica.",
+       text:"¿Cuánto mide el otro ángulo?",
+       opts:["A. 4°","B. 14°","C. 86°","D. 90°"],
+       correct:2,hint:"La suma de los dos ángulos debe ser igual a 90°.",
+       comp:"Interpretación · Comprende y transforma información cuantitativa.",
+       nivel:2,
+       explain:"La suma de los dos ángulos debe ser igual a 90°. Como el ángulo de inclinación de la torre es de 4°, entonces el otro ángulo mide 90° – 4° = 86°."},
+      {id:3,
+       context:"En la tabla se relaciona la cantidad de personas que ingresó cada día durante una semana, según el tipo de entrada que pagó. Sin reserva: 17 euros. Con reserva: 22,5 euros. (Lunes a Domingo: Sin reserva: 300, 300, 500, 700, 300, 300, 700. Con reserva: 700, 800, 200, 600, 500, 500, 600)",
+       text:"Aproximadamente, ¿qué porcentaje del total de personas que visitaron la torre esa semana entraron sin hacer reserva?",
+       opts:["A. 56 %","B. 50 %","C. 44 %","D. 40 %"],
+       correct:2,hint:"Suma las personas sin reserva y divídelas entre el total.",
+       comp:"Interpretación · Da cuenta de características de información en tablas.",
+       nivel:3,
+       explain:"El total de personas que entraron sin reserva fue de: 300 + 300 + 500 + 700 + 300 + 300 + 700 = 3.100, y el total de personas que entran con reserva fue de: 700 + 800 + 200 + 600 + 500 + 500 + 600 = 3.900, para un total de 3.100 + 3.900 = 7.000 visitantes. Por tanto, el porcentaje del total de personas que visitaron la torre esa semana sin hacer reserva fue de (3.100/7.000) × 100 ≈ 44%."},
+      {id:4,
+       context:"El proceso que muestra cómo se obtiene el dinero recaudado en la semana es: 1. Sumar personas sin reserva, 2. Multiplicar por 17, 3. Sumar personas con reserva, 4. Multiplicar por 22,5.",
+       text:"¿Cuál de las siguientes preguntas NO se puede resolver empleando una parte del proceso anterior?",
+       opts:["A. ¿Con cuál tipo de entrada se recaudó más dinero?","B. ¿Cuántas personas ingresaron en la semana?","C. ¿Cuál es la ganancia total del sitio turístico?","D. ¿Cuánto dinero se recaudó por tipo de entrada?"],
+       correct:2,hint:"Piensa qué información adicional necesitarías.",
+       comp:"Interpretación · Da cuenta de características de información en tablas.",
+       nivel:2,
+       explain:"Con el proceso solo se puede calcular y comparar el dinero recaudado en la semana por concepto de entradas (con o sin reserva). Sin embargo, otros valores del sitio turístico, como los gastos, son desconocidos, por lo que no es posible calcular la ganancia total del sitio."},
+      {id:5,
+       context:"Con los mismos datos de la tabla anterior (personas sin reserva y con reserva por día, precios de 17€ y 22,5€).",
+       text:"El recaudo total de la semana, registrada en la tabla, fue aproximadamente de",
+       opts:["A. 14 mil euros","B. 140 mil euros","C. 120 euros","D. 120.000 euros"],
+       correct:1,hint:"Multiplica personas por precio y suma ambos totales.",
+       comp:"Formulación y ejecución · Resuelve problemas con información cuantitativa.",
+       nivel:2,
+       explain:"Como cada entrada sin reserva vale 17 euros, entonces el total recaudado por personas que ingresaron sin reserva fue de 3.100 × 17 euros = 52.700 euros, y el total recaudado por personas que ingresaron con reserva fue de 3.900 × 22,5 euros = 87.750 euros, y por tanto, el recaudo total de la semana fue de aproximadamente 140 mil euros."},
+      {id:6,
+       context:"La mediana de la cantidad de turistas sin reserva que ingresan a la torre es 300; la de los que ingresan con reserva es 600.",
+       text:"Solamente teniendo esto en cuenta, ¿es correcto afirmar que entran el doble de turistas con reserva que sin ella?",
+       opts:["A. No, la mediana es una medida de localización central.","B. No, la mediana muestra la dispersión de los datos.","C. Sí, la mediana me da el promedio de los datos.","D. Sí, la mediana me da la mitad de los datos."],
+       correct:0,hint:"Recuerda qué representa la mediana.",
+       comp:"Argumentación · Plantea afirmaciones basadas en información estadística.",
+       nivel:3,
+       explain:"La mediana es el valor que está en la posición central cuando los datos están ordenados y, por tanto, no caracteriza necesariamente los totales ni permite hacer comparaciones de ese tipo. La mediana indica el valor central, no el total ni el promedio."},
+      {id:7,
+       context:"El dueño de un parque recreativo planea construir tres piscinas y decorar sus bordes con baldosas blancas y azules, tal como se muestra en las figuras. Figura 1: 12 baldosas azules. Figura 2: 18 baldosas azules. Figura 3: 24 baldosas azules.",
+       text:"Según la observación de las figuras 1, 2 y 3, puede afirmarse correctamente que el número de baldosas",
+       opts:["A. azules se incrementa en seis de una piscina a la del siguiente tamaño.","B. blancas aumenta en ocho a medida que crece el tamaño de las piscinas.","C. azules es el doble de la cantidad de baldosas blancas en cada piscina.","D. blancas es la tercera parte de la cantidad de las baldosas azules."],
+       correct:0,hint:"Observa el patrón: 12, 18, 24...",
+       comp:"Interpretación · Identifica patrones en secuencias.",
+       nivel:2,
+       explain:"A partir de las figuras mostradas, se observa que: Figura 1: 12 baldosas azules. Figura 2: 18 = 12 + 6. Figura 3: 24 = 18 + 6. Se puede concluir que el número de baldosas azules aumenta en 6 de una piscina a la del siguiente tamaño."},
+      {id:8,
+       context:"Se lanzan cuatro fichas que tienen dos caras cada una. Una de las fichas es azul por sus dos caras, otra es blanca por sus dos caras y las otras fichas tienen una cara azul y una cara blanca.",
+       text:"¿Cuál de los siguientes eventos es imposible que ocurra?",
+       opts:["A. Obtener una cara azul y tres caras blancas.","B. Obtener dos caras azules y dos caras blancas.","C. Obtener tres caras azules y una cara blanca.","D. Obtener cuatro caras azules y cero blancas."],
+       correct:3,hint:"Hay al menos una ficha con cara blanca.",
+       comp:"Formulación y ejecución · Determina eventos en experimentos aleatorios.",
+       nivel:3,
+       explain:"Dado que hay una ficha con sus dos caras blancas, y son cuatro fichas en total, en cualquier lanzamiento de las cuatro fichas siempre se obtendrá al menos una cara blanca. Por tanto, es imposible obtener cuatro caras azules y cero blancas."},
+      {id:9,
+       context:"El costo de la boleta en un cinema depende de la edad de la persona: De 0 a 8 años: $5.000. De 8 a 16 años: $7.000. De 16 a 56 años: $10.000. Más de 56 años: $6.000.",
+       text:"La gráfica que representa esta función es",
+       opts:["A. Gráfica escalonada correcta con los cuatro intervalos.","B. Gráfica con puntos unidos por segmentos.","C. Gráfica con línea continua.","D. Gráfica con valores en eje equivocado."],
+       correct:0,hint:"La función es a trozos y tiene saltos.",
+       comp:"Interpretación · Transforma representación de información.",
+       nivel:2,
+       explain:"Con la información de la tabla se puede construir la gráfica de la función a trozos correctamente con los intervalos de edad en el eje X y los costos en el eje Y, mostrando los saltos correspondientes a cada intervalo."},
+      {id:10,
+       context:"En la figura se muestra la construcción de una cometa triangular, en la que se conoce únicamente la medida del ángulo M = 150°. El ángulo O debe ser menor que 150° para que la cometa vuele. El análisis indica: I. M = 150°, N = 180° - 150°. II. N = 30°. III. La suma de los ángulos de un triángulo debe ser 160°. IV. Si N = 30°, O + P = 160° - 30°. V. O + P = 130°. VI. O debe ser menor que 130°. VII. Si O < 130° entonces O < 150°. VIII. La cometa volará.",
+       text:"Del anterior análisis, el paso en el que se comete un error es el",
+       opts:["A. I, porque si M = 150°, N debe ser la resta entre 160° y 150°, es decir, N = 10°.","B. III, porque la suma de los ángulos internos de un triángulo debe ser 180°.","C. VII, porque O < 130° no quiere decir O < 150°.","D. VIII, porque si O < 150° la cometa no volará."],
+       correct:1,hint:"¿Cuánto suman los ángulos internos de un triángulo?",
+       comp:"Argumentación · Valida procedimientos con criterios establecidos.",
+       nivel:3,
+       explain:"La suma de los ángulos internos de un triángulo debe ser igual a 180°. Por tanto: O + P = 180° – 30° = 150°, de donde O < 150°. La conclusión sigue siendo verdadera, pero en la argumentación había una premisa falsa en el paso III."},
+      {id:11,
+       context:"Se realizó una encuesta a 200 clientes de una empresa de telecomunicaciones. Las calificaciones fueron: Excelente 10%, Bueno 35%, Regular 40%, Malo 15%.",
+       text:"La afirmación verdadera acerca de los resultados de la encuesta es:",
+       opts:["A. Más de 30 clientes consideran que la calidad del servicio que ofrece la empresa es excelente.","B. Menos de 50 clientes consideran que la calidad del servicio que ofrece la empresa es regular.","C. Menos de 55 clientes están satisfechos con el servicio que ofrece la empresa.","D. Más de 60 clientes consideran que la calidad del servicio que ofrece la empresa es bueno."],
+       correct:3,hint:"Calcula el 35% de 200 clientes.",
+       comp:"Argumentación · Plantea afirmaciones basadas en información.",
+       nivel:3,
+       explain:"Dado que la encuesta se realizó a 200 clientes, y el 35% de los encuestados calificó como 'bueno' el servicio, entonces (35/100) × 200 clientes = 70 clientes calificaron como 'bueno' el servicio. Por tanto, es verdadero que más de 60 clientes consideran que la calidad del servicio que ofrece la empresa es buena."},
+      {id:12,
+       context:"'Quisiéramos dividir el segmento MN en dos partes congruentes'. Para su construcción, un estudiante efectuó: Se construyen dos triángulos equiláteros MNP y MNQ. Luego se traza el segmento PQ, intersecando a MN en R.",
+       text:"De acuerdo con la información anterior, la construcción geométrica que debió hacer el estudiante para realizar la actividad fue",
+       opts:["A. Dos triángulos con MN como lado.","B. Triángulos congruentes sin intersección en R.","C. M y N como centros de circunferencias.","D. Dos triángulos equiláteros sobre MN con PQ intersectando MN en R."],
+       correct:3,hint:"Los triángulos deben construirse sobre MN.",
+       comp:"Formulación y ejecución · Resuelve problemas en contextos geométricos.",
+       nivel:3,
+       explain:"Siguiendo los pasos de la construcción, se deben construir dos triángulos equiláteros MNP y MNQ sobre el segmento MN. Luego se traza el segmento PQ, intersecando a MN en R. Esta es la construcción geométrica correcta."},
+      {id:13,
+       context:"La familia Ramírez tiene un plan local de 220 minutos. En enero consumió 331 minutos. Se registró un consumo adicional de 111 minutos.",
+       text:"El tiempo adicional consumido por la familia Ramírez en enero fue:",
+       opts:["A. 1 hora y 11 minutos.","B. 1 hora y 51 minutos.","C. 3 horas y 40 minutos.","D. 5 horas y 31 minutos."],
+       correct:1,hint:"111 minutos = 1 hora + ? minutos",
+       comp:"Formulación y ejecución · Resuelve problemas con información cuantitativa.",
+       nivel:2,
+       explain:"Dado que el plan local actual de la familia Ramírez es de 220 minutos, y en el mes de enero el consumo fue de 331 minutos, entonces se registró un consumo adicional de 111 minutos, que son equivalentes a 1 hora y 51 minutos."},
+      {id:14,
+       context:"El señor Ramírez considera que el valor del minuto adicional fue excesivo. Su hija asegura que la diferencia entre el valor del minuto del plan y el del minuto adicional es de $35,42.",
+       text:"¿Cuál de los siguientes datos NO se necesita para hall ar esta diferencia?",
+       opts:["A. La cantidad de minutos del plan.","B. El valor del consumo adicional.","C. El total de cargos del mes.","D. El valor del plan local."],
+       correct:2,hint:"Solo necesitas datos directos del plan y consumo.",
+       comp:"Formulación y ejecución · Diseña planes para решения problemas.",
+       nivel:3,
+       explain:"Para determinar el valor por minuto del plan local se debe dividir el costo del plan local entre la cantidad de minutos del plan local; para determinar el valor por minuto adicional se debe dividir el costo del consumo adicional entre la cantidad de minutos adicionales consumidos. Por tanto, el total de cargos del mes no es necesario para hall ar esta diferencia."},
+      {id:15,
+       context:"En un hospital, los niveles de clasificación son: Nivel I: atención inmediata. Nivel II: 5 min a 2 horas. Nivel III: 4 a 6 horas. Isabel llegó y recibió el turno 180. Fue clasificada en Nivel III y al cabo del máximo tiempo (6 horas) es llamada cuando el tablero muestra el número 240.",
+       text:"¿Aproximadamente cuántas personas por hora llegaron a la sala de espera mientras Isabel estuvo allí?",
+       opts:["A. 60 personas por hora.","B. 40 personas por hora.","C. 15 personas por hora.","D. 10 personas por hora."],
+       correct:3,hint:"Divide personas adicionales entre horas.",
+       comp:"Formulación y ejecución · Ejecuta planes de solución.",
+       nivel:3,
+       explain:"Como Isabel fue clasificada en el Nivel III, recibió el turno 180 cuando llegó, y fue atendida en el tiempo máximo de espera que es de 6 horas, entonces cuando observa el número 240, han llegado 240 – 180 = 60 personas adicionales. Por tanto, han llegado 60 personas / 6 horas = 10 personas por hora."},
+      {id:16,
+       context:"Cada uno de los lados del cuadrilátero de la figura se traslada una unidad hacia la izquierda; luego se amplía esta al doble de su tamaño, manteniéndose fijo el vértice inferior. Dos de los vértices del cuadrilátero ampliado son (-5,7) y (-1,1).",
+       text:"¿Cuáles son las coordenadas de los otros dos vértices?",
+       opts:["A. (-1,5) y (3,7).","B. (5,-1) y (7,3).","C. (5,7) y (1,1).","D. (1,5) y (-5,-7)."],
+       correct:0,hint:"Sigue la transformación paso a paso.",
+       comp:"Formulación y ejecución · Identifica características de localización en sistemas cartesianos.",
+       nivel:3,
+       explain:"Si el cuadrilátero se traduce una unidad hacia la izquierda y luego se amplía al doble de su tamaño, manteniendo fijo el vértice inferior, los otros dos vértices tienen coordenadas (-1,5) y (3,7)."},
+      {id:17,
+       context:"Un empresario compra un apartamento de $80.000.000 y acuerda pagarlo en cuotas mensuales de igual valor. Opciones: 50 cuotas de $1.600.000, 40 de $2.000.000, 32 de $2.500.000, 25 de $3.200.000, 20 de $4.000.000, 16 de $5.000.000, 10 de $8.000.000, 8 de $10.000.000.",
+       text:"Respecto a la información de la tabla, es verdadero afirmar que",
+       opts:["A. el empresario paga más por el apartamento dependiendo de la cantidad de cuotas.","B. de manera proporcional, a mayor cantidad de cuotas menor valor se pagará en cada una de ellas.","C. el empresario paga solo el valor del apartamento únicamente cuando elige el menor número de cuotas.","D. de manera proporcional, a mayor valor pagado por cuota, más tiempo se tardará en pagar la deuda."],
+       correct:1,hint:"Multiplica número de cuotas por valor de cuota.",
+       comp:"Interpretación · Da cuenta de características de información en tablas.",
+       nivel:2,
+       explain:"De la tabla se puede observar que: 50 × 1.600.000 = 80.000.000, 40 × 2.000.000 = 80.000.000, y así sucesivamente. El número de cuotas y el valor de la cuota son inversamente proporcionales, y entre mayor sea el número de cuotas, menor valor se pagará en cada una de ellas."},
+      {id:18,
+       context:"Para ambientar musicalmente una reunión, se cuenta con tres CD, cada uno de ellos tiene canciones de salsa (S) y merengue (M).",
+       text:"¿Cuál de los siguientes diagramas representa la situación de seleccionar al azar una canción del CD1, luego una del CD2 y finalmente una del CD3?",
+       opts:["A. Diagrama con todas las combinaciones posibles.","B. Diagrama con solo algunas combinaciones.","C. Diagrama con selección aleatoria de CD.","D. Diagrama con un solo tipo de canción."],
+       correct:0,hint:"Cada CD tiene canciones de ambos géneros.",
+       comp:"Interpretación · Representa experimentos aleatorios.",
+       nivel:3,
+       explain:"Como el CD1 tiene canciones de salsa y de merengue, el resultado de seleccionar al azar una canción de este CD se puede representar con dos ramas. Análogamente para CD2 y CD3. El diagrama correcto muestra todas las combinaciones posibles de los tres CD."},
+      {id:19,
+       context:"Para observar los efectos de un medicamento, este se inyecta en un animal y se registra el comportamiento de la temperatura (°C) en función del tiempo (horas). La gráfica muestra una curva con amplitud 2, trasladada 36 unidades hacia arriba, con periodo 3.",
+       text:"¿Cuál de las siguientes expresiones corresponde a la curva que describe la temperatura del animal en función del tiempo?",
+       opts:["A. F(t) = 2cos(2πt/3) + 36","B. F(t) = 3cos(2πt/3) + 38","C. F(t) = 2sen(2πt/3) + 36","D. F(t) = 3sen(2πt/3) + 38"],
+       correct:2,hint:"La amplitud es 2 y está trasladada 36 unidades.",
+       comp:"Formulación y ejecución · Modela situaciones con funciones trigonométricas.",
+       nivel:3,
+       explain:"A partir de la información de la gráfica se puede determinar que la amplitud de la curva es 2, la curva está trasladada 36 unidades hacia arriba respecto al eje horizontal, y tiene periodo 3. Por tanto, la expresión que corresponde a la curva es F(t) = 2sen(2πt/3) + 36."},
+      {id:20,
+       context:"La velocidad máxima de un auto es 100 km/h. Pilar afirma que, a su velocidad máxima, en 100 horas el auto avanzará 1 km.",
+       text:"La afirmación de Pilar es",
+       opts:["A. falsa, porque a la velocidad máxima en una hora recorrerá 100 km.","B. verdadera, porque al dividir la velocidad máxima entre 100 horas se obtiene 1 km.","C. falsa, porque en 100 horas el auto recorrerá 100 km.","D. verdadera, porque al dividir 100 entre 1 se obtiene el valor 100."],
+       correct:0,hint:"100 km/h significa 100 km en 1 hora.",
+       comp:"Argumentación · Analiza validez de afirmaciones sobre razones de cambio.",
+       nivel:2,
+       explain:"Si la velocidad máxima del auto es de 100 km/h, entonces cada hora el auto recorre 100 km manteniendo dicha velocidad. Por tanto, en 100 horas el auto recorrerá 100 horas × 100 km/hora = 10.000 km. La afirmación de que recorrerá 1 km es falsa."}
+    ]
+  }
+};
+
+/* ════════════ NIVEL INFO ════════════ */
+const NIVEL_INFO = {
+  mat: {
+    name: 'Matemáticas',
+    1: { range: 'Puntaje 0 – 35', summary: 'Puede leer información puntual relacionada con situaciones cotidianas presentada en tablas o gráficas.', items: [] },
+    2: { range: 'Puntaje 36 – 50', summary: 'Hace comparaciones y establece relaciones entre los datos presentados.', items: ['Compara datos de dos variables','Identifica valores en diferentes tipos de registro','Reconoce promedio simple, moda, mayor, menor'] },
+    3: { range: 'Puntaje 51 – 70', summary: 'Selecciona información, señala errores y hace distintos tipos de transformaciones aritméticas.', items: ['Selecciona gráficas correspondientes','Compara información gráfica','Reconoce desarrollos planos','Justifica afirmaciones usando operaciones aritméticas'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Resuelve problemas y justifica la veracidad o falsedad de afirmaciones.', items: ['Resuelve problemas con información de eventos dependientes','Realiza transformaciones con operaciones complejas','Modela usando lenguaje algebraico','Resuelve problemas de conteo'] }
+  }
+};
+
+/* ════════════ STATE ════════════ */
+let state={subject:null,questions:[],current:0,answers:[],hintsUsed:0};
+const CORRECT=q=>q.correct;
+
+function shuffleOpts(q){
+  const opts=q.opts.map((o,i)=>({o,i}));
+  for(let i=opts.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[opts[i],opts[j]]=[opts[j],opts[i]];}
+  const newOpts=opts.map(x=>x.o);
+  const origCorrect=q.correct;
+  const order=opts.map(x=>x.i);
+  const newCorrect=order.indexOf(origCorrect);
+  return{...q,opts:newOpts,correct:newCorrect,_origCorrect:origCorrect};
+}
+
+function selectSubject(key){
+  state.subject=key;
+  document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('active-subj'));
+  document.querySelector('.s-'+key).classList.add('active-subj');
+  document.getElementById('btnStart').disabled=false;
+}
+
+function startQuiz(){beginSubject()}
+function beginSubject(){
+  const s=QB[state.subject];
+  state.questions=s.questions.map(q=>shuffleOpts(q));
+  state.current=0;
+  state.answers=new Array(s.questions.length).fill(null);
+  state.hintsUsed=0;
+  showIntro();
+}
+
+function showIntro(){
+  const s=QB[state.subject];
+  document.getElementById('introContent').innerHTML=`
+    <span class="big-icon">${s.icon}</span>
+    <h2>Prueba de ${s.name}</h2>
+    <p>${s.desc}</p>
+    <div class="info-chips">
+      <span class="chip">📝 ${s.questions.length} preguntas</span>
+    </div>
+    <div style="margin-bottom:16px;text-align:left;background:#f7f9fc;border-radius:10px;padding:14px 18px">
+      <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Competencias evaluadas</div>
+      ${s.competencias.map(c=>`<div style="font-size:13px;color:var(--text);padding:3px 0;padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">•</span>${c}</div>`).join('')}
+    </div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn btn-primary" onclick="showQuestion()">Iniciar prueba ➜</button>
+    </div>`;
+  goScreen('s-intro');setProgress(0);
+}
+
+function showQuestion(){
+  const q=state.questions[state.current];
+  const s=QB[state.subject];
+  const total=state.questions.length;
+  let dots='';
+  for(let i=0;i<total;i++) dots+=`<div class="step-dot ${i<state.current?'done':i===state.current?'current':''}"></div>`;
+  document.getElementById('stepperDots').innerHTML=dots;
+  document.getElementById('qTag').className='q-subject-tag tag-mat';
+  document.getElementById('qTag').textContent=s.name;
+  document.getElementById('qNum').textContent=`Pregunta ${state.current+1} / ${total}`;
+  let ctxHtml='';
+  if(q.context){
+    ctxHtml=`<div class="q-context">${q.context}</div>`;
+  }
+  document.getElementById('qContextBlock').innerHTML=ctxHtml;
+  document.getElementById('qText').innerHTML=q.text;
+  let optsHtml='';
+  q.opts.forEach((o,i)=>{
+    const letter=['A','B','C','D'][i];
+    optsHtml+=`<button class="opt" id="opt${i}" onclick="selectOpt(${i})">
+      <span class="opt-letter">${letter}</span>
+      <span>${o.replace(/^[A-D]\.\s*/,'')}</span>
+    </button>`;
+  });
+  document.getElementById('qOpts').innerHTML=optsHtml;
+  document.getElementById('feedbackBox').className='feedback';
+  document.getElementById('fbMeta').style.display='none';
+  document.getElementById('qActions').style.display='none';
+  goScreen('s-question');
+  setProgress(((state.current)/total)*80);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function selectOpt(idx){
+  if(state.answers[state.current]!==null) return;
+  state.answers[state.current]=idx;
+  const q=state.questions[state.current];
+  const correct=idx===q.correct;
+  document.querySelectorAll('.opt').forEach((el,i)=>{
+    el.disabled=true;
+    if(i===q.correct) el.classList.add('correct');
+    else if(i===idx&&!correct) el.classList.add('wrong');
+  });
+  const fb=document.getElementById('feedbackBox');
+  fb.className='feedback show '+(correct?'fb-correct':'fb-wrong');
+  document.getElementById('fbIcon').textContent=correct?'🎉':'🤔';
+  document.getElementById('fbTitle').textContent=correct?'¡Correcto!':'Respuesta incorrecta';
+  document.getElementById('fbText').textContent=q.explain||'';
+  const metaDiv=document.getElementById('fbMeta');
+  if(metaDiv&&q.comp){
+    const parts=q.comp.split(' · ');
+    const nivel=q.nivel||'';
+    const nivelCls=['','meta-nivel-1','meta-nivel-2','meta-nivel-3','meta-nivel-4'][nivel]||'meta-nivel-1';
+    metaDiv.innerHTML=`<table class="meta-table"><tr><td>Competencia</td><td>${parts[0]||''}</td></tr><tr><td>Nivel</td><td><span class="meta-pill meta-nivel ${nivelCls} nivel-clickable" onclick="showNivelInfo(${nivel},'mat')">Nivel ${nivel}</span></td></tr></table>`;
+    metaDiv.style.display='block';
+  }
+  document.getElementById('qActions').style.display='flex';
+  const isLast=state.current===state.questions.length-1;
+  document.getElementById('btnNext').textContent=isLast?'Ver resultados 📊':'Siguiente pregunta ➜';
+  if(correct) launchConfetti(4);
+}
+
+function nextQuestion(){
+  if(state.current<state.questions.length-1){state.current++;showQuestion();}
+  else{showResults();}
+}
+
+function showNivelInfo(nivel, subject) {
+  const data=NIVEL_INFO[subject]?.[nivel];
+  if(!data) return;
+  const nivelSheet=document.getElementById('nivelSheet');
+  const itemsHtml=data.items.length?`<ul class="nivel-desc-items">${data.items.map(i=>`<li>${i}</li>`).join('')}</ul>`:'';
+  nivelSheet.innerHTML=`
+    <div class="nivel-sheet-header">
+      <span class="nivel-sheet-badge" style="background:#e8eef5;color:#1a3a5c">Nivel ${nivel}</span>
+      <h3>${data.name}</h3>
+      <button class="nivel-sheet-close" onclick="closeNivelModal()">×</button>
+    </div>
+    <div class="nivel-range">${data.range}</div>
+    <div class="nivel-desc-summary">${data.summary}</div>
+    ${itemsHtml}`;
+  document.getElementById('nivelModal').classList.add('show');
+}
+
+function closeNivelModal(){document.getElementById('nivelModal').classList.remove('show');}
+
+function showResults(){
+  setProgress(100);
+  const subjects=[{key:state.subject,answers:state.answers,questions:state.questions}];
+  let totalCorrect=0,totalQ=0;
+  const sc=subjects.map(({key,answers,questions})=>{
+    let correct=answers.filter((a,i)=>a===questions[i].correct).length;
+    totalCorrect+=correct;totalQ+=questions.length;
+    const pct=Math.round((correct/questions.length)*100);
+    const nivel=pct>=75?4:pct>=50?3:pct>=25?2:1;
+    return{key,correct,total:questions.length,pct,nivel,answers};
+  });
+  const globalPct=Math.round((totalCorrect/totalQ)*100);
+  const lvText={4:{label:'Nivel 4',cls:'lv4',desc:'Nivel alto'},3:{label:'Nivel 3',cls:'lv3',desc:'Nivel medio-alto'},2:{label:'Nivel 2',cls:'lv2',desc:'Nivel medio'},1:{label:'Nivel 1',cls:'lv1',desc:'Nivel bajo'}};
+  let html=`<div class="result-header">
+    <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.7;margin-bottom:8px">Reporte de Resultados · SABER 11° 2020</div>
+    <h2>¡Simulacro completado!</h2><p>Matemáticas · Secretaría de Educación Nariño</p>
+    <div class="global-score">
+      <span class="pts">${globalPct}</span>
+      <span class="pts-label">Puntaje</span>
+    </div></div>
+  <div class="card">
+    <div style="font-size:12px;font-weight:800;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Tu resultado</div>
+    <table class="score-table"><thead><tr><th>Prueba</th><th>Puntaje</th><th>Progreso</th><th>Nivel</th></tr></thead><tbody>
+    ${sc.map(s=>`<tr>
+      <td><strong style="font-size:13px">📐 ${QB[s.key].name}</strong><br><span style="font-size:11px;color:var(--muted)">${s.correct}/${s.total} correctas</span></td>
+      <td><span style="font-family:'Space Mono';font-size:18px;font-weight:700;color:#1a3a5c">${s.pct}</span></td>
+      <td style="width:100px"><div class="score-bar-wrap"><div class="score-bar" style="width:${s.pct}%;background:#1a3a5c"></div></div></td>
+      <td><span class="level-pill ${lvText[s.nivel].cls}">${lvText[s.nivel].label}</span></td>
+    </tr>`).join('')}
+    </tbody></table></div>
+  <div class="card" style="text-align:center">
+    <div style="font-size:14px;font-weight:700;margin-bottom:16px">¿Quieres seguir practicando?</div>
+    <div class="actions" style="justify-content:center">
+      <button class="btn btn-primary" onclick="restartSame()">🔄 Repetir prueba</button>
+      <a class="btn btn-outline" href="../index.html">🏠 Volver al portal</a>
+    </div></div>`;
+  document.getElementById('resultsContent').innerHTML=html;
+  goScreen('s-results');
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(globalPct>=60) launchConfetti(20);
+}
+
+function goScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function setProgress(pct){document.getElementById('progFill').style.width=pct+'%';}
+function restartSame(){beginSubject();}
+function launchConfetti(n){
+  const colors=['#e8a020','#1a3a5c','#2a9d5c','#6c4bc0','#d94040'];
+  for(let i=0;i<n;i++){
+    const el=document.createElement('div');el.className='confetti-piece';
+    el.style.cssText=`left:${20+Math.random()*60}vw;top:20vh;width:${6+Math.random()*6}px;height:${6+Math.random()*6}px;background:${colors[Math.floor(Math.random()*colors.length)]};border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.4}s;`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
+  }
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  const matCount=document.getElementById('matCount');
+  if(matCount) matCount.textContent=QB.mat.questions.length+' preguntas';
+  selectSubject('mat');
+});
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script>
+</body>
+</html>

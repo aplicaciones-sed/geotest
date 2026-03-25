@@ -1,4 +1,4 @@
-const CACHE = 'portal-sed-narino-v2';
+const CACHE = 'portal-sed-narino-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -11,6 +11,11 @@ const ASSETS = [
   './saber11-2017/icon-192.png',
   './saber11-2017/icon-512.png',
   './saber11-2017/icon-escudo.svg',
+  './saber11-matematicas-2020/index.html',
+  './saber11-matematicas-2020/manifest.json',
+  './saber11-matematicas-2020/icon-192.png',
+  './saber11-matematicas-2020/icon-512.png',
+  './saber11-matematicas-2020/icon-escudo.svg',
 ];
 
 self.addEventListener('install', e => {
