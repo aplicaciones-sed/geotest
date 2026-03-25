@@ -1,4 +1,4 @@
-const CACHE = 'saber11-2017-v2';
+const CACHE = 'simulacro-1-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',

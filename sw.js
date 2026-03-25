@@ -1,4 +1,4 @@
-const CACHE = 'portal-sed-narino-v3';
+const CACHE = 'portal-sed-narino-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -6,11 +6,11 @@ const ASSETS = [
   './icon-192.png',
   './icon-512.png',
   './icon-escudo.svg',
-  './saber11-2017/index.html',
-  './saber11-2017/manifest.json',
-  './saber11-2017/icon-192.png',
-  './saber11-2017/icon-512.png',
-  './saber11-2017/icon-escudo.svg',
+  './simulacro-1/index.html',
+  './simulacro-1/manifest.json',
+  './simulacro-1/icon-192.png',
+  './simulacro-1/icon-512.png',
+  './simulacro-1/icon-escudo.svg',
   './saber11-matematicas-2020/index.html',
   './saber11-matematicas-2020/manifest.json',
   './saber11-matematicas-2020/icon-192.png',
