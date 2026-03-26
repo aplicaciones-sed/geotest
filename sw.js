@@ -1,4 +1,4 @@
-const CACHE = 'portal-sed-narino-v6';
+const CACHE = 'portal-sed-narino-v7';
 const ASSETS = [
   './',
   './index.html',
@@ -11,16 +11,11 @@ const ASSETS = [
   './simulacro-1/icon-192.png',
   './simulacro-1/icon-512.png',
   './simulacro-1/icon-escudo.svg',
-  './saber11-matematicas-2020/index.html',
-  './saber11-matematicas-2020/manifest.json',
-  './saber11-matematicas-2020/icon-192.png',
-  './saber11-matematicas-2020/icon-512.png',
-  './saber11-matematicas-2020/icon-escudo.svg',
-  './saber11-lectura-critica-2020/index.html',
-  './saber11-lectura-critica-2020/manifest.json',
-  './saber11-lectura-critica-2020/icon-192.png',
-  './saber11-lectura-critica-2020/icon-512.png',
-  './saber11-lectura-critica-2020/icon-escudo.svg',
+  './simulacro-2/index.html',
+  './simulacro-2/manifest.json',
+  './simulacro-2/icon-192.png',
+  './simulacro-2/icon-512.png',
+  './simulacro-2/icon-escudo.svg',
 ];
 
 self.addEventListener('install', e => {

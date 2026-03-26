@@ -15,7 +15,7 @@ Progressive Web App (PWA) for SABER 11 test simulator by Secretaría de Educaci�
 ├── icon-escudo.svg             # Shield/logo SVG
 ├── assets/                     # Images and static assets
 ├── simulacro-1/               # Simulacro 1 (standalone PWA)
-└── saber11-matematicas-2020/  # Math simulator (standalone PWA)
+└── simulacro-2/               # Simulacro 2 - Matemáticas y Lectura Crítica (standalone PWA)
 ```
 
 ## Development Commands
@@ -160,7 +160,7 @@ caches.match(request).then(r => r || fetch(request).catch(() => caches.match('./
 **Cached assets** (in `sw.js` ASSETS array):
 - Root: `index.html`, `manifest.json`, icons
 - `simulacro-1/` subdirectory
-- `saber11-matematicas-2020/` subdirectory
+- `simulacro-2/` subdirectory
 
 **Activation**: Cleans old caches on activation
 
