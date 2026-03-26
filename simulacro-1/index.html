@@ -179,6 +179,47 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .fb-wrong h3{color:var(--red)}
 .fb-content p{font-size:12px;line-height:1.5;color:var(--text-2)}
 
+/* ── Modo de evaluación ── */
+.mode-btn{transition:all .2s}
+.mode-btn.active{border-color:var(--primary)!important;background:var(--primary-lt)!important;color:var(--primary)!important}
+.mode-btn:hover:not(.active){border-color:#93adc8}
+
+.toggle-switch{position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;cursor:pointer}
+.toggle-switch input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--border);border-radius:28px;transition:.25s}
+.toggle-slider::before{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.25s;box-shadow:0 2px 4px rgba(0,0,0,.2)}
+.toggle-switch input:checked+.toggle-slider{background:var(--primary)}
+.toggle-switch input:checked+.toggle-slider::before{transform:translateX(24px)}
+
+/* ── Revisión de respuestas ── */
+.review-section{margin-top:24px}
+.review-header{text-align:center;margin-bottom:20px}
+.review-header h3{font-size:18px;font-weight:900;color:var(--primary);margin-bottom:4px}
+.review-header p{font-size:13px;color:var(--text-3)}
+.review-subject{margin-bottom:24px}
+.review-subj-title{font-size:14px;font-weight:800;color:var(--primary);margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid var(--primary)}
+.review-card{background:var(--surface);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1px solid var(--border);border-left:4px solid var(--border)}
+.review-card.review-correct{border-left-color:var(--green)}
+.review-card.review-wrong{border-left-color:var(--red)}
+.review-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.review-q-num{width:28px;height:28px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.review-status{font-size:12px;font-weight:800;padding:4px 12px;border-radius:20px}
+.review-status.status-correct{background:var(--green-lt);color:var(--green)}
+.review-status.status-wrong{background:var(--red-lt);color:var(--red)}
+.review-context{font-size:13px;color:var(--text);line-height:1.6;background:var(--bg);padding:12px 14px;border-radius:var(--r-sm);margin-bottom:12px;border-left:3px solid var(--accent)}
+.review-img{text-align:center;margin:12px 0}
+.review-img img{max-width:100%;border-radius:var(--r-sm);border:1px solid var(--border);max-height:300px}
+.review-question{font-size:14px;font-weight:700;color:var(--text);line-height:1.6;margin-bottom:12px}
+.review-answers{display:grid;gap:8px;margin-bottom:12px}
+.review-answer{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border-radius:var(--r-sm);background:var(--bg);border:1px solid var(--border)}
+.review-answer.answer-correct{border-color:var(--green);background:var(--green-lt)}
+.review-answer.answer-wrong{border-color:var(--red);background:var(--red-lt)}
+.answer-label{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3)}
+.answer-text{font-size:13px;color:var(--text)}
+.review-explain{display:flex;gap:8px;align-items:flex-start;padding:12px;background:#fffdf7;border:1px solid #f0d88a;border-radius:var(--r-sm)}
+.explain-icon{font-size:16px;flex-shrink:0}
+.review-explain span:last-child{font-size:13px;color:var(--text-2);line-height:1.6}
+
 
 /* ── Pantalla de resultados ── */
 .result-header{background:var(--primary);border-radius:var(--r);padding:20px;text-align:center;color:#fff;margin-bottom:12px;position:relative;overflow:hidden}
@@ -927,6 +968,18 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
       <div class="subj-card s-cn" onclick="selectSubject('cn')"><span class="subj-icon">🔬</span><div class="subj-name">Ciencias Naturales</div><div class="subj-count">10 preguntas</div></div>
       <div class="subj-card s-ing" onclick="selectSubject('ing')"><span class="subj-icon">🇬🇧</span><div class="subj-name">Inglés</div><div class="subj-count">4 preguntas</div></div>
     </div>
+    <div style="margin-bottom:16px;padding:12px 16px;background:#f7f9fc;border-radius:var(--r);border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--text)">Retroalimentación inmediata</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Muestra resultado después de cada respuesta</div>
+        </div>
+        <label class="toggle-switch" onclick="toggleFeedbackMode()">
+          <input type="checkbox" id="feedbackToggle" checked>
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
     <div class="actions">
       <button class="btn btn-primary" id="btnStart" disabled onclick="startQuiz()">Comenzar simulacro ➜</button>
       <button class="btn btn-outline" onclick="startAllSubjects()">Examen completo 📋</button>
@@ -1384,7 +1437,7 @@ function shuffleOpts(q){
 }
 
 /* ════════════ STATE ════════════ */
-let state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{}};
+let state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{},immediateFeedback:true};
 const CORRECT=q=>q.correct;
 
 /* ════════════ HOME ════════════ */
@@ -1429,6 +1482,11 @@ function showIntro(){
       <button class="btn btn-primary" onclick="showQuestion()">Iniciar prueba ➜</button>
     </div>`;
   goScreen('s-intro');setProgress(0);
+}
+
+function toggleFeedbackMode(){
+  const toggle=document.getElementById('feedbackToggle');
+  state.immediateFeedback=toggle.checked;
 }
 
 /* ════════════ QUESTION ════════════ */
@@ -1524,80 +1582,83 @@ function showCuy(){
   },3200);
 }
 function selectOpt(idx){
-  if(state.answers[state.current]!==null) return;
+  if(state.answers[state.current]!==null && state.immediateFeedback) return;
+  const prevAnswer=state.answers[state.current];
   state.answers[state.current]=idx;
   const q=state.questions[state.current];
   const correct=idx===q.correct;
   document.querySelectorAll('.opt').forEach((el,i)=>{
     el.disabled=true;
-    if(i===q.correct) el.classList.add('correct');
-    else if(i===idx&&!correct) el.classList.add('wrong');
+    if(state.immediateFeedback){
+      if(i===q.correct) el.classList.add('correct');
+      else if(i===idx&&!correct) el.classList.add('wrong');
+    } else {
+      el.classList.remove('selected');
+      if(i===idx) el.classList.add('selected');
+    }
   });
-  const fb=document.getElementById('feedbackBox');
-  fb.className='feedback show '+(correct?'fb-correct':'fb-wrong');
-  document.getElementById('fbIcon').textContent=correct?'🎉':'🤔';
-  document.getElementById('fbTitle').textContent=correct?'¡Correcto!':'Respuesta incorrecta';
-  if(correct) showCuy(); else showCuyWrong();
-  // Corregir la letra mencionada en el explain según el orden actual del shuffle
-  const letters=['A','B','C','D'];
-  const origLetter = letters[q._origCorrect ?? q.correct];
-  const newLetter  = letters[q.correct];
-  function fixExplainLetter(text, orig, rep){
-    if(orig === rep) return text;
-    // Patrones: (A), opción A, respuesta A, answer is A, answer: A, option A,
-    // gráfica A, Solo A, Por tanto A, la A, es A al final o antes de puntuación
-    return text
-      .replace(new RegExp(`\\(${orig}\\)`, 'g'), `(${rep})`)
-      .replace(new RegExp(`\\b(opci[oó]n|respuesta|answer is|answer:|option|gr[aá]fica|Solo|solo|es la)\\s+${orig}\\b`, 'gi'),
-        (_, p) => `${p} ${rep}`)
-      .replace(new RegExp(`\\bthe correct answer is ${orig}\\b`, 'gi'), `The correct answer is ${rep}`)
-      .replace(new RegExp(`\\b(Por tanto|Therefore|purpose is)\\s+${orig}\\b`, 'gi'),
-        (_, p) => `${p} ${rep}`)
-      .replace(new RegExp(`\\bSolo ${orig}\\b`, 'g'), `Solo ${rep}`)
-      .replace(new RegExp(`\\bOnly ${orig}\\b`, 'g'), `Only ${rep}`);
-  }
-  const fixedExplain = fixExplainLetter(q.explain, origLetter, newLetter);
-  document.getElementById('fbText').textContent=fixedExplain;
-  // Mostrar metadata ICFES
-  const subj=state.allSubjects?state.subject:state.subject;
-  const qIdx=state.current;
-  const meta=META_QB[subj]?.[qIdx];
-  const metaEl=document.getElementById('fbMeta');
-  if(meta&&metaEl){
-    const tipoHtml=meta.tipo?`<span class="meta-pill meta-tipo">${meta.tipo}</span>`:'';
-    metaEl.innerHTML=`
-      <div class="meta-row"><span class="meta-label">Competencia</span><span class="meta-val">${meta.comp}</span></div>
-      <div class="meta-row"><span class="meta-label">Afirmación</span><span class="meta-val">${meta.afirm}</span></div>
-      <div class="meta-row"><span class="meta-label">Nivel de desempeño</span><span class="meta-pill meta-nivel">Nivel ${meta.nivel}</span>${tipoHtml}</div>`;
-    metaEl.style.display='block';
+  if(state.immediateFeedback){
+    const fb=document.getElementById('feedbackBox');
+    fb.className='feedback show '+(correct?'fb-correct':'fb-wrong');
+    document.getElementById('fbIcon').textContent=correct?'🎉':'🤔';
+    document.getElementById('fbTitle').textContent=correct?'¡Correcto!':'Respuesta incorrecta';
+    if(correct) showCuy(); else showCuyWrong();
+    const letters=['A','B','C','D'];
+    const origLetter = letters[q._origCorrect ?? q.correct];
+    const newLetter  = letters[q.correct];
+    function fixExplainLetter(text, orig, rep){
+      if(orig === rep) return text;
+      return text
+        .replace(new RegExp(`\\(${orig}\\)`, 'g'), `(${rep})`)
+        .replace(new RegExp(`\\b(opci[oó]n|respuesta|answer is|answer:|option|gr[aá]fica|Solo|solo|es la)\\s+${orig}\\b`, 'gi'),
+          (_, p) => `${p} ${rep}`)
+        .replace(new RegExp(`\\bthe correct answer is ${orig}\\b`, 'gi'), `The correct answer is ${rep}`)
+        .replace(new RegExp(`\\b(Por tanto|Therefore|purpose is)\\s+${orig}\\b`, 'gi'),
+          (_, p) => `${p} ${rep}`)
+        .replace(new RegExp(`\\bSolo ${orig}\\b`, 'g'), `Solo ${rep}`)
+        .replace(new RegExp(`\\bOnly ${orig}\\b`, 'g'), `Only ${rep}`);
+    }
+    const fixedExplain = fixExplainLetter(q.explain, origLetter, newLetter);
+    document.getElementById('fbText').textContent=fixedExplain;
+    const subj=state.allSubjects?state.subject:state.subject;
+    const qIdx=state.current;
+    const meta=META_QB[subj]?.[qIdx];
+    const metaEl=document.getElementById('fbMeta');
+    if(meta&&metaEl){
+      const tipoHtml=meta.tipo?`<span class="meta-pill meta-tipo">${meta.tipo}</span>`:'';
+      metaEl.innerHTML=`
+        <div class="meta-row"><span class="meta-label">Competencia</span><span class="meta-val">${meta.comp}</span></div>
+        <div class="meta-row"><span class="meta-label">Afirmación</span><span class="meta-val">${meta.afirm}</span></div>
+        <div class="meta-row"><span class="meta-label">Nivel de desempeño</span><span class="meta-pill meta-nivel">Nivel ${meta.nivel}</span>${tipoHtml}</div>`;
+      metaEl.style.display='block';
+    }
+    const metaDiv = document.getElementById('fbMeta');
+    if(metaDiv){
+      const compFull = q.comp || '';
+      const parts = compFull.split(' · ');
+      const competencia = parts[0] || '';
+      const afirmacion = parts.length > 1 && !parts[1].startsWith('Tipo:') && !parts[1].startsWith('Componente:') ? parts[1] : '';
+      const contenido = parts.find(p => !p.startsWith('Tipo:') && !p.startsWith('Componente:') && p !== competencia && p !== afirmacion) || '';
+      const tipo = (parts.find(p => p.startsWith('Tipo:')) || '').replace('Tipo: ','');
+      const componente = (parts.find(p => p.startsWith('Componente:')) || '').replace('Componente: ','');
+      const nivel = q.nivel || '';
+      const nivelCls = ['','meta-nivel-1','meta-nivel-2','meta-nivel-3','meta-nivel-4'][nivel] || 'meta-nivel-1';
+      let compAfirm = competencia;
+      if(afirmacion) compAfirm += `<br><span style="font-weight:400;color:var(--text-2);font-style:italic">${afirmacion}</span>`;
+      let rows = '';
+      if(compAfirm) rows += `<tr><td>📌 Competencia/Afirmación</td><td>${compAfirm}</td></tr>`;
+      if(contenido && !contenido.startsWith('Tipo:') && !contenido.startsWith('Componente:')) rows += `<tr><td>📚 Contenido</td><td>${contenido}</td></tr>`;
+      if(componente) rows += `<tr><td>🔖 Componente</td><td>${componente}</td></tr>`;
+      if(tipo) rows += `<tr><td>📄 Tipo de texto</td><td>${tipo}</td></tr>`;
+      if(nivel) rows += `<tr><td>⭐ Nivel de desempeño</td><td><span class="meta-pill meta-nivel ${nivelCls} nivel-clickable" onclick="showNivelInfo(${nivel},'${state.subject}')" title="Ver descripción del nivel">${nivel} <span style="font-size:10px;opacity:.7">ⓘ</span></span></td></tr>`;
+      metaDiv.innerHTML = rows ? `<table class="meta-table">${rows}</table>` : '';
+      metaDiv.style.display = rows ? 'block' : 'none';
+    }
+    if(correct) launchConfetti(4);
   }
   document.getElementById('qActions').style.display='flex';
-  // Mostrar tabla metadata ICFES
-  const metaDiv = document.getElementById('fbMeta');
-  if(metaDiv){
-    const compFull = q.comp || '';
-    const parts = compFull.split(' · ');
-    const competencia = parts[0] || '';
-    const afirmacion = parts.length > 1 && !parts[1].startsWith('Tipo:') && !parts[1].startsWith('Componente:') ? parts[1] : '';
-    const contenido = parts.find(p => !p.startsWith('Tipo:') && !p.startsWith('Componente:') && p !== competencia && p !== afirmacion) || '';
-    const tipo = (parts.find(p => p.startsWith('Tipo:')) || '').replace('Tipo: ','');
-    const componente = (parts.find(p => p.startsWith('Componente:')) || '').replace('Componente: ','');
-    const nivel = q.nivel || '';
-    const nivelCls = ['','meta-nivel-1','meta-nivel-2','meta-nivel-3','meta-nivel-4'][nivel] || 'meta-nivel-1';
-    let compAfirm = competencia;
-    if(afirmacion) compAfirm += `<br><span style="font-weight:400;color:var(--text-2);font-style:italic">${afirmacion}</span>`;
-    let rows = '';
-    if(compAfirm) rows += `<tr><td>📌 Competencia/Afirmación</td><td>${compAfirm}</td></tr>`;
-    if(contenido && !contenido.startsWith('Tipo:') && !contenido.startsWith('Componente:')) rows += `<tr><td>📚 Contenido</td><td>${contenido}</td></tr>`;
-    if(componente) rows += `<tr><td>🔖 Componente</td><td>${componente}</td></tr>`;
-    if(tipo) rows += `<tr><td>📄 Tipo de texto</td><td>${tipo}</td></tr>`;
-    if(nivel) rows += `<tr><td>⭐ Nivel de desempeño</td><td><span class="meta-pill meta-nivel ${nivelCls} nivel-clickable" onclick="showNivelInfo(${nivel},'${state.subject}')" title="Ver descripción del nivel">${nivel} <span style="font-size:10px;opacity:.7">ⓘ</span></span></td></tr>`;
-    metaDiv.innerHTML = rows ? `<table class="meta-table">${rows}</table>` : '';
-    metaDiv.style.display = rows ? 'block' : 'none';
-  }
   const isLast=state.current===state.questions.length-1;
   document.getElementById('btnNext').textContent=isLast?(state.allSubjects&&state.allQueue.length>0?`Ir a ${QB[state.allQueue[0]]?.name} ➜`:'Ver resultados 📊'):'Siguiente pregunta ➜';
-  if(correct) launchConfetti(4);
 }
 
 
@@ -1746,6 +1807,63 @@ function showResults(){
       </div></div>`;
   });
 
+  html+=`<div class="review-section">
+    <div class="review-header">
+      <h3>Revisión de respuestas</h3>
+      <p>Analiza cada pregunta para aprender de tus errores</p>
+    </div>`;
+    subjects.forEach(({key,answers,questions})=>{
+      const subj=QB[key];
+      html+=`<div class="review-subject">
+        <div class="review-subj-title">${subj.icon} ${subj.name}</div>`;
+      questions.forEach((q,i)=>{
+        const userAns=answers[i];
+        const correct=userAns===q.correct;
+        const letters=['A','B','C','D'];
+        const origLetter = letters[q._origCorrect ?? q.correct];
+        const newLetter  = letters[q.correct];
+        function fixExplainLetter(text, orig, rep){
+          if(orig === rep) return text;
+          return text
+            .replace(new RegExp(`\\(${orig}\\)`, 'g'), `(${rep})`)
+            .replace(new RegExp(`\\b(opci[oó]n|respuesta|answer is|answer:|option|gr[aá]fica|Solo|solo|es la)\\s+${orig}\\b`, 'gi'),(_, p) => `${p} ${rep}`)
+            .replace(new RegExp(`\\bthe correct answer is ${orig}\\b`, 'gi'), `The correct answer is ${rep}`)
+            .replace(new RegExp(`\\b(Por tanto|Therefore|purpose is)\\s+${orig}\\b`, 'gi'),(_, p) => `${p} ${rep}`)
+            .replace(new RegExp(`\\bSolo ${orig}\\b`, 'g'), `Solo ${rep}`)
+            .replace(new RegExp(`\\bOnly ${orig}\\b`, 'g'), `Only ${rep}`);
+        }
+        const fixedExplain = fixExplainLetter(q.explain, origLetter, newLetter);
+        html+=`<div class="review-card ${correct?'review-correct':'review-wrong'}">
+          <div class="review-card-header">
+            <span class="review-q-num">${i+1}</span>
+            <span class="review-status ${correct?'status-correct':'status-wrong'}">${correct?'Correcto':'Incorrecto'}</span>
+          </div>
+          ${q.context?'<div class="review-context">'+q.context+'</div>':''}
+          ${q.contextImg&&IMGS[q.contextImg]?'<div class="review-img"><img src="'+IMGS[q.contextImg]+'" alt="Imagen de contexto" loading="lazy"></div>':''}
+          <div class="review-question">${q.text||''}</div>
+          ${q.img&&IMGS[q.img]?'<div class="review-img"><img src="'+IMGS[q.img]+'" alt="Imagen de la pregunta" loading="lazy"></div>':''}
+          <div class="review-answers">
+            ${correct?`
+            <div class="review-answer answer-correct">
+              <span class="answer-label">Respuesta correcta</span>
+              <span class="answer-text">${q.opts[q.correct]?.replace(/^[A-D]\.\s*/,'') || ''}</span>
+            </div>`:`
+            <div class="review-answer answer-wrong">
+              <span class="answer-label">Tu respuesta</span>
+              <span class="answer-text">${q.opts[userAns]?.replace(/^[A-D]\.\s*/,'') || '<em>Sin responder</em>'}</span>
+            </div>
+            <div class="review-answer answer-correct">
+              <span class="answer-label">Respuesta correcta</span>
+              <span class="answer-text">${q.opts[q.correct]?.replace(/^[A-D]\.\s*/,'') || ''}</span>
+            </div>`}
+          </div>
+          ${fixedExplain?'<div class="review-explain"><span class="explain-icon">💡</span><span>'+fixedExplain+'</span></div>':''}
+        </div>`;
+      });
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+
   html+=`<div class="card" style="text-align:center">
     <div style="font-size:14px;font-weight:700;margin-bottom:16px">¿Quieres seguir practicando?</div>
     <div class="actions" style="justify-content:center">
@@ -1771,7 +1889,7 @@ function closeModal(){
 }
 function goHome(){
   closeModal();
-  state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{}};
+  state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{},immediateFeedback:true};
   document.querySelectorAll('.subj-card').forEach(c=>c.classList.remove('active-subj'));
   document.getElementById('btnStart').disabled=true;
   goScreen('s-home');setProgress(0);
