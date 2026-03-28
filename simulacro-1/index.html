@@ -183,6 +183,10 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
 .mode-btn{transition:all .2s}
 .mode-btn.active{border-color:var(--primary)!important;background:var(--primary-lt)!important;color:var(--primary)!important}
 .mode-btn:hover:not(.active){border-color:#93adc8}
+.timer-display{display:inline-flex;align-items:center;gap:5px;background:var(--primary-lt);color:var(--primary);padding:4px 12px;border-radius:20px;font-family:'Space Mono',monospace;font-size:13px;font-weight:700;margin-left:auto}
+.timer-display.timer-warning{background:#fef3c7;color:#b45309}
+.timer-display.timer-danger{background:#fee2e2;color:#dc2626;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
 
 .toggle-switch{position:relative;display:inline-block;width:52px;height:28px;flex-shrink:0;cursor:pointer}
 .toggle-switch input{opacity:0;width:0;height:0}
@@ -1006,6 +1010,14 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
         </label>
       </div>
     </div>
+    <div style="margin-bottom:16px;padding:12px 16px;background:#fef9e7;border-radius:var(--r);border:1px solid #f0d88a">
+      <div style="font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Modo de tiempo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn mode-btn active" id="homeModeUntimed" onclick="setTimedMode(false)" style="flex:1;min-width:100px;padding:8px 12px;font-size:12px;border:2px solid var(--border);background:var(--surface);color:var(--text)">⏱️ Sin límite</button>
+        <button class="btn mode-btn" id="homeModeTimed" onclick="setTimedMode(true)" style="flex:1;min-width:100px;padding:8px 12px;font-size:12px;border:2px solid var(--border);background:var(--surface);color:var(--text)">⏰ Cronometrado</button>
+      </div>
+      <div id="homeTimeInfo" style="display:none;margin-top:8px;font-size:11px;color:var(--text-2)">⏱️ <span id="timeDisplay">20 minutos</span></div>
+    </div>
     <div class="actions">
       <button class="btn btn-primary" id="btnStart" disabled onclick="startQuiz()">Comenzar simulacro ➜</button>
       <button class="btn btn-outline" onclick="startAllSubjects()">Examen completo 📋</button>
@@ -1034,6 +1046,7 @@ body{font-family:'Nunito',sans-serif;background:var(--primary);color:var(--text)
     <div class="q-meta">
       <span class="q-subject-tag" id="qTag"></span>
       <span class="q-num" id="qNum"></span>
+      <span id="timerDisplay" class="timer-display" style="display:none">⏱️ <span>0:00</span></span>
     </div>
     <div id="qContextBlock"></div>
     <div class="q-text" id="qText"></div>
@@ -1463,7 +1476,7 @@ function shuffleOpts(q){
 }
 
 /* ════════════ STATE ════════════ */
-let state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{},immediateFeedback:true};
+let state={subject:null,questions:[],current:0,answers:[],hintsUsed:0,allSubjects:false,allQueue:[],allAnswers:{},immediateFeedback:true,timedMode:false,timeRemaining:0,timerInterval:null,timeExpired:false};
 const CORRECT=q=>q.correct;
 
 /* ════════════ HOME ════════════ */
@@ -1480,16 +1493,20 @@ function startAllSubjects(){
 function startQuiz(){state.allSubjects=false;beginSubject();}
 function beginSubject(){
   const s=QB[state.subject];
-  // Mezclar opciones de cada pregunta en cada intento
   state.questions=s.questions.map(q=>shuffleOpts(q));
   state.current=0;
   state.answers=new Array(s.questions.length).fill(null);state.hintsUsed=0;
+  state.timeExpired=false;
+  if(state.timedMode && state.timeRemaining===0){
+    state.timeRemaining=s.questions.length*60;
+  }
   showIntro();
 }
 
 /* ════════════ INTRO ════════════ */
 function showIntro(){
   const s=QB[state.subject];
+  const timeModeHtml=state.timedMode?`<div style="margin-top:12px;padding:10px 14px;background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;font-size:13px;color:#b45309"><strong>⏰ Modo cronometrado:</strong> ${s.questions.length} minutos</div>`:`<div style="margin-top:12px;padding:10px 14px;background:#f7f9fc;border-radius:8px;font-size:13px;color:var(--text-2)"><strong>⏱️ Sin límite de tiempo</strong></div>`;
   document.getElementById('introContent').innerHTML=`
     <span class="big-icon">${s.icon}</span>
     <h2>Prueba de ${s.name}</h2>
@@ -1497,14 +1514,14 @@ function showIntro(){
     <div class="info-chips">
       <span class="chip">📝 ${s.questions.length} preguntas</span>
       <span class="chip">🖼️ Imágenes reales ICFES</span>
-
     </div>
     <div style="margin-bottom:16px;text-align:left;background:#f7f9fc;border-radius:10px;padding:14px 18px">
       <div style="font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">Competencias evaluadas</div>
       ${s.competencias.map(c=>`<div style="font-size:13px;color:var(--text);padding:3px 0;padding-left:16px;position:relative"><span style="position:absolute;left:0;color:var(--accent)">•</span>${c}</div>`).join('')}
     </div>
+    ${timeModeHtml}
     <div class="actions" style="justify-content:center">
-      <button class="btn btn-outline" onclick="goScreen('s-home')">← Regresar</button>
+      <button class="btn btn-outline" onclick="goHomeResetTime()">← Regresar</button>
       <button class="btn btn-primary" onclick="showQuestion()">Iniciar prueba ➜</button>
     </div>`;
   goScreen('s-intro');setProgress(0);
@@ -1514,6 +1531,65 @@ function toggleFeedbackMode(){
   const toggle=document.getElementById('feedbackToggle');
   state.immediateFeedback=toggle.checked;
 }
+
+function setTimedMode(timed){
+  state.timedMode=timed;
+  document.getElementById('modeUntimed')?.classList.toggle('active',!timed);
+  document.getElementById('modeTimed')?.classList.toggle('active',timed);
+  document.getElementById('homeModeUntimed')?.classList.toggle('active',!timed);
+  document.getElementById('homeModeTimed')?.classList.toggle('active',timed);
+  document.getElementById('timeInfo').style.display=timed?'block':'none';
+  document.getElementById('homeTimeInfo').style.display=timed?'block':'none';
+  if(timed){
+    const s=QB[state.subject];
+    state.timeRemaining=s.questions.length*60;
+    document.getElementById('timeDisplay').textContent=`${s.questions.length} minutos`;
+  }
+}
+
+function startTimer(){
+  if(!state.timedMode) return;
+  stopTimer();
+  updateTimerDisplay();
+  state.timerInterval=setInterval(()=>{
+    state.timeRemaining--;
+    updateTimerDisplay();
+    if(state.timeRemaining<=0){
+      stopTimer();
+      expireTime();
+    }
+  },1000);
+}
+
+function stopTimer(){
+  if(state.timerInterval){
+    clearInterval(state.timerInterval);
+    state.timerInterval=null;
+  }
+}
+
+function updateTimerDisplay(){
+  const mins=Math.floor(state.timeRemaining/60);
+  const secs=state.timeRemaining%60;
+  const timerEl=document.getElementById('timerDisplay');
+  if(timerEl){
+    timerEl.innerHTML=`⏱️ <span>${mins}:${secs.toString().padStart(2,'0')}</span>`;
+    timerEl.classList.toggle('timer-warning',state.timeRemaining<=60);
+    timerEl.classList.toggle('timer-danger',state.timeRemaining<=30);
+  }
+}
+
+function expireTime(){
+  state.timeExpired=true;
+  let unanswered=0;
+  state.answers=state.answers.map((a,i)=>{
+    if(a===null){unanswered++;return -1;}
+    return a;
+  });
+  showResults();
+}
+
+function goHomeResetTime(){stopTimer();goScreen('s-home');}
 
 /* ════════════ QUESTION ════════════ */
 function showQuestion(){
@@ -1528,6 +1604,13 @@ function showQuestion(){
   document.getElementById('qTag').className='q-subject-tag '+s.tag;
   document.getElementById('qTag').textContent=s.name;
   document.getElementById('qNum').textContent=`Pregunta ${state.current+1} / ${total}`;
+  const timerEl=document.getElementById('timerDisplay');
+  if(timerEl){
+    timerEl.style.display=state.timedMode?'inline-flex':'none';
+  }
+  if(state.current===0 && state.timedMode){
+    startTimer();
+  }
   // context block
   let ctxHtml='';
   if(q.contextImg){
@@ -1693,39 +1776,147 @@ function selectOpt(idx){
 const NIVEL_INFO = {
   lc: {
     name: 'Lectura Crítica',
-    1: { range: 'Puntaje 0 – 35', summary: 'Identifica elementos literales en textos continuos y discontinuos sin establecer relaciones de significado.', items: [] },
-    2: { range: 'Puntaje 36 – 50', summary: 'Comprende textos continuos y discontinuos de manera literal. Reconoce información explícita y la relaciona con el contexto.', items: ['Identifica información local del texto.','Identifica la estructura de textos continuos y discontinuos.','Identifica relaciones básicas entre componentes del texto.','Identifica fenómenos semánticos básicos: sinónimos y antónimos.','Reconoce en un texto la diferencia entre proposición y párrafo.','Reconoce el sentido local y global del texto.','Identifica intenciones comunicativas explícitas.','Identifica relaciones básicas: contraste, similitud y complementación, entre textos presentes.'] },
-    3: { range: 'Puntaje 51 – 65', summary: 'Interpreta información de textos al inferir contenidos implícitos y reconocer estructuras, estrategias discursivas y juicios valorativos.', items: ['Jerarquiza la información presente en un texto.','Infiere información implícita en textos continuos y discontinuos.','Establece relaciones intertextuales: definición, causa-efecto, oposición y antecedente-consecuente, entre textos presentes.','Reconoce la intención comunicativa del texto.','Relaciona marcadores textuales en la interpretación de textos.','Reconoce la función de figuras literarias.','Identifica el uso del lenguaje en contexto.','Analiza y sintetiza la información contenida en un texto.','Identifica la estructura sintáctica en textos discontinuos.','Establece la validez de argumentos en un texto.'] },
-    4: { range: 'Puntaje 66 – 100', summary: 'Reflexiona a partir de un texto sobre la visión de mundo del autor. Da cuenta de elementos paratextuales significativos y valora y contrasta los elementos mencionados con la posición propia.', items: ['Propone soluciones a problemas de interpretación que subyacen en un texto.','Evalúa contenidos, estrategias discursivas y argumentativas presentes en un texto.','Relaciona información de dos o más textos o fragmentos de texto para llegar a una conclusión.','Aplica conceptos de análisis literario para caracterizar diferentes elementos en un texto.','Reconoce los contextos como elementos importantes en la valoración de un texto.','Selecciona elementos locales y construye argumentos que sustentan una tesis con base en textos relacionados.','Asume una postura crítica frente a los planteamientos de un texto.','Plantea hipótesis de lectura a partir de las ideas presentes en un texto.'] }
+    1: { range: 'Puntaje 0 – 35', summary: '', items: ['El estudiante que se ubica en este nivel probablemente identifica elementos literales en textos continuos y discontinuos sin establecer relaciones de significado.'] },
+    2: { range: 'Puntaje 36 – 50', summary: 'Además de lo descrito en el nivel anterior, el estudiante que se ubica en este nivel comprende textos continuos y discontinuos de manera literal. Reconoce información explícita y la relaciona con el contexto. <br>Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Identifica información local del texto.',
+      'Identifica la estructura de textos continuos y discontinuos.',
+      'Identifica relaciones básicas entre componentes del texto.',
+      'Identifica fenómenos semánticos básicos: sinónimos y antónimos.',
+      'Reconoce en un texto la diferencia entre proposición y párrafo.',
+      'Reconoce el sentido local y global del texto.',
+      'Identifica intenciones comunicativas explícitas.',
+      'Identifica relaciones básicas: contraste, similitud y complementación, entre textos presentes.'] },
+    3: { range: 'Puntaje 51 – 65', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel interpreta información de textos al inferir contenidos implícitos y reconocer estructuras, estrategias discursivas y juicios valorativos. <br>Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Jerarquiza la información presente en un texto.',
+      'Infiere información implícita en textos continuos y discontinuos.',
+      'Establece relaciones intertextuales: definición, causa-efecto, oposición y antecedente-consecuente, entre textos presentes.',
+      'Reconoce la intención comunicativa del texto.',
+      'Relaciona marcadores textuales en la interpretación de textos.',
+      'Reconoce la función de figuras literarias.',
+      'Identifica el uso del lenguaje en contexto.',
+      'Analiza y sintetiza la información contenida en un texto.',
+      'Identifica la estructura sintáctica en textos discontinuos.',
+      'Establece la validez de argumentos en un texto.'] },
+    4: { range: 'Puntaje 66 – 100', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel reflexiona a partir de un texto sobre la visión de mundo del autor (costumbres, creencias, juicios, carácter ideológico-político y posturas éticas, entre otros). Asimismo, da cuenta de elementos paratextuales significativos presentes en el texto. Finalmente, valora y contrasta los elementos mencionados con la posición propia. <br>Para clasificar en este nivel, el estudiante:', 
+    items: ['Propone soluciones a problemas de interpretación que subyacen en un texto.',
+    'Evalúa contenidos, estrategias discursivas y argumentativas presentes en un texto.',
+    'Relaciona información de dos o más textos o fragmentos de texto para llegar a una conclusión.',
+    'Aplica conceptos de análisis literario para caracterizar diferentes elementos en un texto.',
+    'Reconoce los contextos como elementos importantes en la valoración de un texto.',
+    'Selecciona elementos locales y construye argumentos que sustentan una tesis con base en textos relacionados.',
+    'Asume una postura crítica frente a los planteamientos de un texto.',
+    'Plantea hipótesis de lectura a partir de las ideas presentes en un texto.'] }
   },
   mat: {
     name: 'Matemáticas',
-    1: { range: 'Puntaje 0 – 35', summary: 'Puede leer información puntual relacionada con situaciones cotidianas presentada en tablas o gráficas, pero puede tener dificultades al comparar distintos conjuntos de datos o analizar situaciones alejadas de su vida diaria.', items: [] },
-    2: { range: 'Puntaje 36 – 50', summary: 'Hace comparaciones y establece relaciones entre los datos presentados, e identifica y extrae información local y global de manera directa, en contextos familiares o personales.', items: ['Compara datos de dos variables presentadas en una misma gráfica sin operaciones aritméticas.','Identifica valores o puntos representativos en diferentes tipos de registro.','Compara la probabilidad de eventos simples cuando los casos posibles son los mismos.','Toma decisiones sobre la veracidad o falsedad de una afirmación a partir de lectura directa.','Cambia gráficas de barras a tablas de doble entrada.','Reconoce e interpreta el significado de promedio simple, moda, mayor, menor, máximo y mínimo.'] },
-    3: { range: 'Puntaje 51 – 70', summary: 'Selecciona información, señala errores y hace distintos tipos de transformaciones y manipulaciones aritméticas y algebraicas sencillas, involucrando conceptos de proporcionalidad, factores de conversión, áreas y desarrollos planos.', items: ['Selecciona la gráfica correspondiente a la información de una tabla según la escala, el tipo de variable y el tipo de gráfica.','Compara información gráfica que requiere algunas manipulaciones aritméticas.','Señala información representada en formatos no convencionales (mapas o infografías).','Reconoce errores ocurridos al realizar una transformación entre diferentes tipos de registro.','Reconoce desarrollos planos de una forma tridimensional y viceversa.','Compara la probabilidad de eventos simples en diversos contextos.','Selecciona información necesaria para resolver problemas con operaciones aritméticas.','Cambia la escala cuando la transformación no es convencional.','Justifica afirmaciones utilizando planteamientos y operaciones aritméticas.','Hace manipulaciones algebraicas sencillas (aritmética de términos semejantes).'] },
-    4: { range: 'Puntaje 71 – 100', summary: 'Resuelve problemas y justifica la veracidad o falsedad de afirmaciones que requieren el uso de conceptos de probabilidad, propiedades algebraicas, relaciones trigonométricas y características de funciones reales.', items: ['Resuelve problemas que requieren interpretar información de eventos dependientes.','Realiza transformaciones de subconjuntos de información que pueden requerir el uso de operaciones complejas (cálculos de porcentajes).','Resuelve problemas que requieren construir una representación auxiliar (gráficas y fórmulas) como paso intermedio.','Modela usando lenguaje algebraico información dada en lenguaje natural, tablas o representaciones geométricas.','Manipula expresiones algebraicas o aritméticas haciendo uso de las propiedades de las operaciones.','Modela fenómenos variacionales no explícitos haciendo uso de lenguaje simbólico o gráficas.','Reconoce en diferentes formatos el espacio muestral de un experimento aleatorio.','Resuelve problemas de conteo que requieren el uso de permutaciones.','Justifica si hay falta de información en una situación problema para tomar una decisión.'] }
+    1: { range: 'Puntaje 0 – 35', summary: '', 
+    items: ['El estudiante que se ubica en este nivel probablemente puede leer información puntual (un dato, por ejemplo) relacionada con situaciones cotidianas y presentada en tablas o gráficas con escala explícita, cuadrícula o, por lo menos, líneas horizontales; pero puede tener dificultades al comparar distintos conjuntos de datos, involucrar diferentes variables o analizar situaciones alejadas de su vida diaria.'] },
+    2: { range: 'Puntaje 36 – 50', summary: 'Además de lo descrito en el nivel anterior, el estudiante que se ubica en este nivel es capaz de hacer comparaciones y establecer relaciones entre los datos presentados, e identificar y extraer información local y global de manera directa. Lo anterior en contextos familiares o personales que involucran gráficas con escala explícita, cuadrícula o, por lo menos, líneas horizontales u otros formatos con poca información. <br>Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Compara datos de dos variables presentadas en una misma gráfica sin operaciones aritméticas.',
+    'Identifica valores o puntos representativos en diferentes tipos de registro a partir del significado que tienen en la situación.',
+    'Compara la probabilidad de eventos simples (casos favorables/casos posibles), cuando los casos posibles son los mismos en ambos eventos y en contextos similares a los presentados en el aula.',
+    'Toma decisiones sobre la veracidad o falsedad de una afirmación cuando esta se puede explicar verbalizando la lectura directa que se hace de la información.',
+    'Cambia gráficas de barras a tablas de doble entrada.',
+    'Reconoce e interpreta el significado de promedio simple, moda, mayor, menor, máximo y mínimo.'] },
+    3: { range: 'Puntaje 51 – 70', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel selecciona información, señala errores y hace distintos tipos de transformaciones y manipulaciones aritméticas y algebraicas sencillas; esto para enfrentarse a problemas que involucran el uso de conceptos de proporcionalidad, factores de conversión, áreas y desarrollos planos, en contextos laborales u ocupacionales, matemáticos o científicos, y comunitarios o sociales.<br> Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Selecciona la gráfica (que puede ser de doble entrada) correspondiente a la información de una tabla, o a partir de verbalizaciones (características de crecimiento o decrecimiento deseadas), teniendo en cuenta para la selección la escala, el tipo de variable y el tipo de gráfica.',
+      'Compara información gráfica que requiere algunas manipulaciones aritméticas.',
+      'Señala información representada en formatos no convencionales (mapas o infografías).',
+      'Reconoce errores ocurridos al realizar una transformación entre diferentes tipos de registro.',
+      'Reconoce desarrollos planos de una forma tridimensional y viceversa.',
+      'Compara la probabilidad de eventos simples en diversos contextos (casos favorables/casos posibles), incluso cuando los casos posibles de cada evento son diferentes.',
+      'Selecciona información necesaria para resolver problemas que involucran operaciones aritméticas.',
+      'Selecciona información necesaria para resolver problemas que involucran características medibles de figuras geométricas elementales (triángulos, cuadriláteros y circunferencias).',
+      'Cambia la escala cuando la transformación no es convencional.',
+      'Justifica afirmaciones utilizando planteamientos y operaciones aritméticas o haciendo uso directo de un concepto, es decir, a partir de un único argumento.',
+      'Identifica información relevante cuando el tipo de registro contiene información de más de tres categorías.',
+      'Hace manipulaciones algebraicas sencillas (aritmética de términos semejantes).'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel resuelve problemas y justifica la veracidad o falsedad de afirmaciones que requieren el uso de conceptos de probabilidad, propiedades algebraicas, relaciones trigonométricas y características de funciones reales. Lo anterior, en contextos principalmente matemáticos o científicos abstractos.<br> Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Resuelve problemas que requieren interpretar información de eventos dependientes.',
+    'Realiza transformaciones de subconjuntos de información que pueden requerir el uso de operaciones complejas (cálculos de porcentajes).',
+    'Resuelve problemas que requieren construir una representación auxiliar (gráficas y fórmulas) como paso intermedio para su solución.',
+    'Modela usando lenguaje algebraico información dada en lenguaje natural, tablas o representaciones geométricas.',
+    'Manipula expresiones algebraicas o aritméticas haciendo uso de las propiedades de las operaciones.',
+    'Modela fenómenos variacionales no explícitos haciendo uso de lenguaje simbólico o gráficas.',
+    'Reconoce en diferentes formatos el espacio muestral de un experimento aleatorio.',
+    'Resuelve problemas de conteo que requieren el uso de permutaciones.',
+    'Justifica si hay falta de información en una situación problema para tomar una decisión.',
+  'Toma decisiones sobre la veracidad o falsedad de una afirmación cuando requiere el uso de varias propiedades o conceptualizaciones formales.'] }
   },
   soc: {
     name: 'Sociales y Ciudadanas',
-    1: { range: 'Puntaje 0 – 40', summary: 'Podría reconocer algunos derechos ciudadanos en situaciones sencillas. Probablemente no está en capacidad de utilizar conceptos de las ciencias sociales o modelos conceptuales, ni reconocer principios constitucionales.', items: [] },
-    2: { range: 'Puntaje 41 – 55', summary: 'Reconoce deberes del Estado colombiano y situaciones de protección o vulneración de derechos; identifica relaciones entre conductas y cosmovisiones; y contextualiza fuentes y procesos sociales.', items: ['Identifica derechos ciudadanos y deberes del Estado establecidos en la Constitución Política de Colombia.','Relaciona la conducta de una persona con su forma de ver la vida.','Reconoce los efectos de una solución y las dimensiones que privilegia.','Identifica contextos o procesos en los que se inscribe una fuente o evento.'] },
-    3: { range: 'Puntaje 56 – 70', summary: 'Identifica prejuicios o intenciones en una afirmación y reconoce las dimensiones e intereses involucrados en un problema. Identifica conceptos básicos de las ciencias sociales y modelos conceptuales.', items: ['Reconoce intenciones y prejuicios, así como argumentos similares o diferentes dados en un contexto específico.','Identifica dimensiones (económicas, políticas, culturales, ambientales, etc.) involucradas en situaciones, problemáticas o propuestas de solución.','Identifica y compara opiniones e intereses de diferentes actores involucrados en una situación problemática.','Reconoce algunos conceptos básicos de las ciencias sociales.','Identifica supuestos y usos de algunos modelos conceptuales.','Relaciona contextos históricos y/o geográficos con fuentes, situaciones y prácticas sociales.','Valora la información contenida en una fuente y reconoce sus alcances.'] },
-    4: { range: 'Puntaje 71 – 100', summary: 'Conoce disposiciones de la Constitución que posibilitan la participación ciudadana; analiza y compara enunciados, intereses y argumentos; y evalúa alternativas de solución a un problema.', items: ['Conoce los procedimientos de reforma a la Constitución, los mecanismos de participación ciudadana y las funciones de los organismos de control.','Compara enunciados o argumentos, así como intereses y posiciones de actores en contextos de situaciones problemáticas.','Relaciona propuestas de solución a un problema con su contexto de implementación o sus posibles impactos.','Entiende problemáticas, eventos o procesos sociales a partir del uso de conceptos básicos de las ciencias sociales.','Analiza fuentes (primarias y secundarias) para valorar inferencias o identificar intenciones y características de los actores.','Establece relaciones entre modelos conceptuales y fuentes que los abordan o decisiones sociales que los aplican.'] }
+    1: { range: 'Puntaje 0 – 40', summary: '', 
+    items: ['El estudiante que se ubica en este nivel podría reconocer algunos derechos ciudadanos en situaciones sencillas. Adicionalmente, podría reconocer factores que generan un conflicto e identificar creencias que explican algunos comportamientos. Este estudiante probablemente no está en capacidad de utilizar conceptos de las ciencias sociales o modelos conceptuales, ni de reconocer principios constitucionales o de analizar enunciados.'] },
+    2: { range: 'Puntaje 41 – 55', summary: 'Además de lo descrito en el nivel anterior, el estudiante que se ubica en este nivel reconoce deberes del Estado colombiano y situaciones de protección o vulneración de derechos en el marco del Estado social de derecho; identifica relaciones entre conductas de las personas y sus cosmovisiones; y reconoce las dimensiones presentes en una situación, problema, decisión tomada o propuesta de solución. Además, contextualiza fuentes y procesos sociales. <br> En este nivel, se presentan contextos cuya descripción es corta, con pocos actores, enunciados directos y posturas o posiciones explícitas, sencillas y claras. Además, se presentan situaciones cercanas a la cotidianidad del estudiante o de conocimiento y amplia discusión pública. <br> Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Identifica derechos ciudadanos y deberes del Estado establecidos en la Constitución Política de Colombia.',
+    'Relaciona la conducta de una persona con su forma de ver la vida.',
+    'Reconoce los efectos de una solución y las dimensiones que privilegia.',
+    'Identifica contextos o procesos en los que se inscribe una fuente o evento.'] },
+    3: { range: 'Puntaje 56 – 70', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel identifica prejuicios o intenciones contenidos en una afirmación y reconoce las dimensiones e intereses involucrados en un problema o alternativa de solución. Asimismo, identifica algunos conceptos básicos de las ciencias sociales y modelos conceptuales, y valora y contextualiza la información presentada en una fuente.<br> En este nivel, las competencias se evalúan tanto en situaciones cotidianas o de amplio conocimiento y discusión pública como en contextos más lejanos y complejos, algunos de ellos con descripciones más largas que las del nivel anterior. <br>Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Reconoce intenciones y prejuicios, así como argumentos similares o diferentes dados en un contexto o una situación específica.',
+      'Identifica dimensiones (económicas, políticas, culturales, ambientales, etc.) involucradas en situaciones, problemáticas o propuestas de solución.',
+      'Identifica y compara opiniones e intereses de diferentes actores involucrados en una situación problemática y establece relaciones entre esas posturas y posibles soluciones.',
+      'Reconoce algunos conceptos básicos de las ciencias sociales.',
+      'Identifica supuestos y usos de algunos modelos conceptuales.',
+      'Relaciona contextos históricos y/o geográficos con fuentes, situaciones y prácticas sociales.',
+      'Valora la información contenida en una fuente y reconoce sus alcances.'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel conoce algunas disposiciones de la Constitución Política de Colombia que posibilitan la participación ciudadana y el control a los poderes públicos; analiza y compara enunciados, intereses y argumentos; y evalúa alternativas de solución a un problema. Este estudiante analiza situaciones a partir de conceptos básicos de las ciencias sociales o de contextos históricos y/o geográficos. A su vez, relaciona fuentes y políticas con modelos conceptuales, y valora los contenidos de una fuente.<br> En este nivel, las competencias se evalúan principalmente en contextos que pueden estar alejados de la cotidianidad del estudiante y que no necesariamente son de amplia discusión pública. Se incluyen preguntas con contextos cortos que requieren ciertos conocimientos sociales, históricos, políticos, culturales y económicos adicionales para ser respondidas correctamente. El estudiante de este nivel es capaz de abordar las preguntas de manera objetiva y realizar el ejercicio cognitivo esperado, independientemente de su posición personal. Finalmente, el estudiante logra identificar diferencias sutiles entre conceptos, entre intenciones y entre intereses de diferentes actores.<br> Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Conoce los procedimientos de reforma a la Constitución, los mecanismos de participación ciudadana y las funciones de los organismos de control.',
+      'Compara enunciados o argumentos, así como intereses y posiciones de actores en contextos en los que se discuten situaciones problemáticas o sus alternativas de solución.',
+      'Relaciona propuestas de solución a un problema con su contexto de implementación o sus posibles impactos en ciertas dimensiones (económicas, políticas, culturales, ambientales, etc.).',
+      'Entiende problemáticas, eventos o procesos sociales a partir del uso de conceptos básicos de las ciencias sociales, o a partir de contextos históricos y/o geográficos.',
+      'Analiza fuentes (primarias y secundarias) para valorar inferencias o identificar intenciones y características de los actores involucrados y contextos en los que se ubican dichas fuentes.',
+      'Establece relaciones entre modelos conceptuales y fuentes que los abordan o decisiones sociales que los aplican.'] }
   },
   cn: {
     name: 'Ciencias Naturales',
-    1: { range: 'Puntaje 0 – 40', summary: 'Muy posiblemente alcanza a reconocer información explícita en tablas o gráficas con lenguaje cotidiano. Demuestra un insuficiente desarrollo de la competencia Indagación.', items: [] },
-    2: { range: 'Puntaje 41 – 55', summary: 'Reconoce información en tablas, gráficas y esquemas de una sola variable independiente, y la asocia con nociones de los conceptos básicos de las ciencias naturales.', items: ['Identifica patrones y características a partir de información presentada en textos, gráficas y tablas.','Relaciona esquemas con nociones básicas del conocimiento científico.','Establece predicciones a partir de datos presentados en tablas, gráficas y esquemas donde se presentan patrones claramente crecientes o decrecientes.','Ordena datos e información en gráficas y tablas.'] },
-    3: { range: 'Puntaje 56 – 70', summary: 'Interrelaciona conceptos, leyes y teorías científicas con información presentada en diversos contextos, en los que intervienen dos o más variables, para hacer inferencias sobre una situación problema.', items: ['Establece relaciones de causa-efecto usando información no suministrada.','Interpreta gráficas, tablas y modelos para hacer predicciones.','Establece relaciones entre conceptos, leyes y teorías científicas con diseños experimentales y sus resultados.','Diferencia entre evidencias y conclusiones.','Plantea hipótesis basadas en evidencias.','Relaciona variables para explicar algunos fenómenos naturales.'] },
-    4: { range: 'Puntaje 71 – 100', summary: 'Usa conceptos, teorías o leyes en la solución de situaciones problema que involucran procedimientos, habilidades, conocimientos y un lenguaje propio de las ciencias naturales.', items: ['Plantea preguntas de investigación desde las ciencias naturales a partir de un contexto determinado.','Establece conclusiones derivadas de una investigación.','Contrasta modelos de las ciencias naturales con fenómenos cotidianos.','Resuelve situaciones problema haciendo uso de conceptos, leyes y teorías de las ciencias naturales.','Comunica resultados de procesos de investigación científica.','Analiza fenómenos naturales con base en los procedimientos propios de la investigación científica.'] }
+    1: { range: 'Puntaje 0 – 40', summary: '', 
+    items: ['El estudiante que se ubica en este nivel muy posiblemente alcanza a reconocer información explícita, presentada de manera ordenada en tablas o gráficas, con un lenguaje cotidiano y que implica la lectura de una sola variable independiente. Por lo tanto, estos estudiantes demuestran un insuficiente desarrollo de la competencia Indagación definida en el marco teórico de la prueba.'] },
+    2: { range: 'Puntaje 41 – 55', summary: 'Además de lo descrito en el nivel anterior, el estudiante que se ubica en este nivel reconoce información suministrada en tablas, gráficas y esquemas de una sola variable independiente, y la asocia con nociones de los conceptos básicos de las ciencias naturales (tiempo, posición, velocidad, imantación y filtración).<br> Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Identifica patrones y características a partir de información presentada en textos, gráficas y tablas.',
+      'Relaciona esquemas con nociones básicas del conocimiento científico.',
+      'Establece predicciones a partir de datos presentados en tablas, gráficas y esquemas donde se presentan patrones claramente crecientes o decrecientes.',
+      'Ordena datos e información en gráficas y tablas.'] },
+    3: { range: 'Puntaje 56 – 70', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel interrelaciona conceptos, leyes y teorías científicas con información presentada en diversos contextos, en los que intervienen dos o más variables, para hacer inferencias sobre una situación problema o un fenómeno natural. <br> Para clasificar en este nivel, el estudiante:', 
+    items: [
+      'Establece relaciones de causa-efecto usando información no suministrada.',
+      'Interpreta gráficas, tablas y modelos para hacer predicciones.',
+      'Establece relaciones entre conceptos, leyes y teorías científicas con diseños experimentales y sus resultados.',
+      'Diferencia entre evidencias y conclusiones.',
+      'Plantea hipótesis basadas en evidencias.','Relaciona variables para explicar algunos fenómenos naturales.'] },
+    4: { range: 'Puntaje 71 – 100', summary: 'Además de lo descrito en los niveles anteriores, el estudiante que se ubica en este nivel usa conceptos, teorías o leyes en la solución de situaciones problema que involucran procedimientos, habilidades, conocimientos y un lenguaje propio de las ciencias naturales.<br> Para clasificar en este nivel, el estudiante:', 
+items: [
+  'Plantea preguntas de investigación desde las ciencias naturales a partir de un contexto determinado.',
+'Establece conclusiones derivadas de una investigación.',
+'Contrasta modelos de las ciencias naturales con fenómenos cotidianos.',
+'Resuelve situaciones problema haciendo uso de conceptos, leyes y teorías de las ciencias naturales.',
+'Comunica resultados de procesos de investigación científica.',
+'Analiza fenómenos naturales con base en los procedimientos propios de la investigación científica.'] }
   },
   ing: {
     name: 'Inglés',
-    0: { range: 'Puntaje 0 – 19 (A−)', summary: 'El estudiante promedio clasificado en este nivel no supera las preguntas de menor complejidad de la prueba.', items: [] },
-    1: { range: 'Puntaje 20 – 40 (A1)', summary: 'Comprende y utiliza expresiones cotidianas de uso muy frecuente, así como frases sencillas destinadas a satisfacer necesidades inmediatas.', items: ['Puede presentarse a sí mismo y a otros, pedir y dar información personal básica sobre su domicilio, sus pertenencias y las personas que conoce.','Puede relacionarse de forma elemental con su interlocutor siempre que este hable despacio y con claridad.'] },
-    2: { range: 'Puntaje 41 – 57 (A2)', summary: 'Comprende frases y expresiones de uso frecuente relacionadas con áreas de experiencia que le son especialmente relevantes.', items: ['Sabe comunicarse a la hora de llevar a cabo tareas simples y cotidianas que no requieran más que intercambios sencillos y directos.','Sabe describir en términos sencillos aspectos de su pasado y su entorno, así como cuestiones relacionadas con sus necesidades inmediatas.'] },
-    3: { range: 'Puntaje 58 – 70 (B1)', summary: 'Comprende los puntos principales de textos claros y en lengua estándar si tratan sobre cuestiones conocidas, ya sea en situaciones de trabajo, de estudio o de ocio.', items: ['Sabe desenvolverse en la mayor parte de las situaciones que pueden surgir durante un viaje por zonas donde se utiliza la lengua.','Es capaz de producir textos sencillos y coherentes sobre temas familiares o en los que tiene un interés personal.','Puede describir experiencias, acontecimientos, deseos y aspiraciones, así como justificar brevemente sus opiniones.'] },
-    4: { range: 'Puntaje 71 – 100 (B+)', summary: 'Comprende y produce textos complejos con precisión y fluidez. Se comunica con eficacia en situaciones avanzadas.', items: ['Comprende textos extensos y complejos sobre temas abstractos y especializados.','Se expresa con fluidez y espontaneidad en conversaciones avanzadas.','Produce textos claros y bien estructurados sobre temas complejos.','Utiliza el idioma con precisión en contextos académicos y profesionales.'] }
+    0: { range: 'Puntaje 0 – 47 (A−)', summary: '', items: ['El estudiante promedio clasificado en este nivel no supera las preguntas de menor complejidad de la prueba.'] },
+    1: { range: 'Puntaje 48 – 57 (A1)', summary: '', 
+    items: ['El estudiante es capaz de comprender y utilizar expresiones cotidianas de uso muy frecuente, así como frases sencillas destinadas a satisfacer necesidades inmediatas.',
+    'Puede presentarse a sí mismo y a otros, pedir y dar información personal básica sobre su domicilio, sus pertenencias y las personas que conoce.',
+    'Puede relacionarse de forma elemental con su interlocutor siempre que este hable despacio y con claridad y esté dispuesto a cooperar.'] },
+    2: { range: 'Puntaje 58 – 67 (A2)', summary: '', 
+    items: ['El estudiante es capaz de comprender frases y expresiones de uso frecuente relacionadas con áreas de experiencia que le son especialmente relevantes (información básica sobre sí mismo y su familia, compras, lugares de interés, ocupaciones, etc.).',
+      'Sabe comunicarse a la hora de llevar a cabo tareas simples y cotidianas que no requieran más que intercambios sencillos y directos de información sobre cuestiones que le son conocidas o habituales.',
+      'Sabe describir en términos sencillos aspectos de su pasado y su entorno, así como cuestiones relacionadas con sus necesidades inmediatas.'] },
+    3: { range: 'Puntaje 68 – 78 (B1)', summary: '', 
+    items: [ 'El estudiante es capaz de comprender los puntos principales de textos claros y en lengua estándar si tratan sobre cuestiones que le son conocidas, ya sea en situaciones de trabajo, de estudio o de ocio.',
+      'Sabe desenvolverse en la mayor parte de las situaciones que pueden surgir durante un viaje por zonas donde se utiliza la lengua.','Es capaz de producir textos sencillos y coherentes sobre temas que le son familiares o en los que tiene un interés personal.','Puede describir experiencias, acontecimientos, deseos y aspiraciones, así como justificar brevemente sus opiniones o explicar sus planes.'] },
+    4: { range: 'Puntaje 79 – 100 (B+)', summary: '', items: ['El estudiante promedio clasificado en este nivel supera las preguntas de mayor complejidad de la prueba.'] }
   }
 };
 
@@ -1736,15 +1927,15 @@ const NIVEL_THRESHOLDS = {
   mat: { 4: 71, 3: 51, 2: 36 },
   soc: { 4: 71, 3: 56, 2: 41 },
   cn: { 4: 71, 3: 56, 2: 41 },
-  ing: { 4: 71, 3: 58, 2: 41 }
+  ing: { 4: 79, 3: 68, 2: 58 }
 };
 
 function getNivel(pct, subject) {
   if (subject === 'ing') {
-    if (pct >= 71) return 4;
-    if (pct >= 58) return 3;
-    if (pct >= 41) return 2;
-    if (pct >= 20) return 1;
+    if (pct >= 79) return 4;
+    if (pct >= 68) return 3;
+    if (pct >= 58) return 2;
+    if (pct >= 48) return 1;
     return 0;
   }
   const th = NIVEL_THRESHOLDS[subject] || { 4: 75, 3: 50, 2: 25 };
@@ -1793,6 +1984,7 @@ function nextQuestion(){
 
 /* ════════════ RESULTS ════════════ */
 function showResults(){
+  stopTimer();
   setProgress(100);
   let subjects=[];
   if(state.allSubjects){
@@ -1815,16 +2007,20 @@ function showResults(){
     3:{label:'Nivel 3',cls:'lv3',desc:'Interpreta, infiere y relaciona información con solidez.'},
     2:{label:'Nivel 2',cls:'lv2',desc:'Identifica y comprende información básica.'},
     1:{label:'Nivel 1',cls:'lv1',desc:'Nivel inicial: reconoce información explícita.'}};
-  const lvTextIng={4:{label:'B+',cls:'lv4',desc:'Comprende y produce textos complejos con precisión y fluidez.'},
-    3:{label:'B1',cls:'lv3',desc:'Comprende puntos principales de textos claros en lengua estándar.'},
-    2:{label:'A2',cls:'lv2',desc:'Comprende frases y expresiones de uso frecuente.'},
-    1:{label:'A1',cls:'lv1',desc:'Utiliza expresiones cotidianas de uso muy frecuente.'},
-    0:{label:'A−',cls:'lv0',desc:'No supera las preguntas de menor complejidad.'}};
+  const lvTextIng={
+    4:{label:'B+',cls:'lv4',desc:'El estudiante promedio clasificado en este nivel supera las preguntas de mayor complejidad de la prueba.'},
+    3:{label:'B1',cls:'lv3',desc:'El estudiante es capaz de comprender los puntos principales de textos claros y en lengua estándar si tratan sobre cuestiones que le son conocidas, ya sea en situaciones de trabajo, de estudio o de ocio.'},
+    2:{label:'A2',cls:'lv2',desc:'El estudiante es capaz de comprender frases y expresiones de uso frecuente relacionadas con áreas de experiencia que le son especialmente relevantes.'},
+    1:{label:'A1',cls:'lv1',desc:'El estudiante es capaz de comprender y utilizar expresiones cotidianas de uso muy frecuente, así como frases sencillas destinadas a satisfacer necesidades inmediatas.'},
+    0:{label:'A−',cls:'lv0',desc:'El estudiante promedio clasificado en este nivel no supera las preguntas de menor complejidad de la prueba.'}
+  };
   const sc_colors={lc:'#6c4bc0',mat:'#1a3a5c',soc:'#e8a020',cn:'#2a9d5c',ing:'#d94040'};
 
   let html=`<div class="result-header">
     <div style="font-size:11px;font-weight:800;letter-spacing:1px;text-transform:uppercase;opacity:.7;margin-bottom:8px">Reporte de Resultados · SABER 11°</div>
-    <h2>¡Simulacro completado!</h2><p>Departamento de Nariño · Secretaría de Educación</p>
+    <h2>${state.timeExpired?'¡Tiempo agotado!':'¡Simulacro completado!'}</h2>
+    ${state.timeExpired?'<p style="color:#dc2626;margin-bottom:8px">El tiempo se agotó antes de responder todas las preguntas</p>':''}
+    <p>Departamento de Nariño · Secretaría de Educación</p>
     <div class="global-score">
       <span class="pts">${subjects.length>1?globalPts+'/500':globalPct+'/100'}</span>
       <span class="pts-label">${subjects.length>1?'Puntaje global':'Puntaje'}</span>
