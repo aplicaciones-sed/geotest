@@ -725,8 +725,10 @@
          }
       }
 
-      /* ═══════════════════════════════════════════════════════════════ */
-   </style>
+       /* ═══════════════════════════════════════════════════════════════ */
+    </style>
+    <script src="js/simulacros.js"></script>
+    <script src="js/questions.js"></script>
 </head>
 
 <body>
@@ -789,32 +791,23 @@
                   <div class="sim-year">Simulacro 1</div>
                   <div class="sim-title">SABER 11° </div>
                </div>
-               <div class="sim-body">
-                  <div class="sim-badges">
-                     <span class="sim-badge">📖 Lectura Crítica</span>
-                     <span class="sim-badge">📐 Matemáticas</span>
-                     <span class="sim-badge">🌎 Sociales</span>
-                     <span class="sim-badge">🔬 Ciencias</span>
-                     <span class="sim-badge">🇬🇧 Inglés</span>
-                  </div>
-                  <p class="sim-desc">Simulacro completo con 38 preguntas reales del ICFES, imágenes originales y reporte detallado de resultados.</p>
-               </div>
-               <div class="sim-footer">
-                  <a class="btn btn-primary" href="simulacro/index.html?simulacro=1" style="flex:1">Iniciar simulacro ➜</a>
-               </div>
-            </div>
-
-             <!-- SIMULACRO 2020 (MATEMÁTICAS + LECTURA CRÍTICA) -->
-             <div class="sim-card">
-                <div class="sim-card-header" style="background:#1a3a5c">
-                   <div class="sim-year">Simulacro 2</div>
-                   <div class="sim-title">SABER 11° </div>
-                </div>
                 <div class="sim-body">
-                   <div class="sim-badges">
-                      <span class="sim-badge">📐 Matemáticas</span>
-                      <span class="sim-badge">📖 Lectura Crítica</span>
-                   </div>
+                   <div class="sim-badges" id="sim-badges-1"></div>
+                   <p class="sim-desc">Simulacro completo con 38 preguntas reales del ICFES, imágenes originales y reporte detallado de resultados.</p>
+                </div>
+                <div class="sim-footer">
+                   <a class="btn btn-primary" href="simulacro/index.html?simulacro=1" style="flex:1">Iniciar simulacro ➜</a>
+                </div>
+             </div>
+
+              <!-- SIMULACRO 2020 (MATEMÁTICAS + LECTURA CRÍTICA) -->
+              <div class="sim-card">
+                 <div class="sim-card-header" style="background:#1a3a5c">
+                    <div class="sim-year">Simulacro 2</div>
+                    <div class="sim-title">SABER 11° </div>
+                 </div>
+                 <div class="sim-body">
+                    <div class="sim-badges" id="sim-badges-2"></div>
                     <p class="sim-desc">Simulacro completo con 20 preguntas de Matemáticas y 20 de Lectura Crítica reales del ICFES con explicaciones detalladas.</p>
                 </div>
                 <div class="sim-footer">
@@ -2356,6 +2349,19 @@
          if (name === 'home') document.querySelector('.nav-links a:first-child').classList.add('active');
          window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+      function renderSimulacroBadges() {
+         if (typeof getSimulacroSubjects !== 'function') return;
+         [1, 2].forEach(simId => {
+            const container = document.getElementById('sim-badges-' + simId);
+            if (!container) return;
+            const subjects = getSimulacroSubjects(simId);
+            if (subjects.length > 0) {
+               container.innerHTML = subjects.map(s => 
+                  '<span class="sim-badge">' + s.icon + ' ' + s.name + '</span>'
+               ).join('');
+            }
+         });
+      }
    </script>
    <script>
       if ('serviceWorker' in navigator) {
@@ -2370,19 +2376,21 @@
          var splash = document.getElementById('splashScreen');
          if (!splash) return;
 
-         // Si ya se mostró en esta sesión, ocultarlo de inmediato sin animación
-         if (sessionStorage.getItem('splashShown')) {
-            splash.style.display = 'none';
-            return;
-         }
+          // Si ya se mostró en esta sesión, ocultarlo de inmediato sin animación
+          if (sessionStorage.getItem('splashShown')) {
+             splash.style.display = 'none';
+             renderSimulacroBadges();
+             return;
+          }
 
          function hideSplash() {
-            splash.classList.add('sp-fade-out');
-            setTimeout(function () {
-               splash.style.display = 'none';
-            }, 650);
-            sessionStorage.setItem('splashShown', '1');
-         }
+             splash.classList.add('sp-fade-out');
+             setTimeout(function () {
+                splash.style.display = 'none';
+                renderSimulacroBadges();
+             }, 650);
+             sessionStorage.setItem('splashShown', '1');
+          }
 
          // Auto-ocultar a los 3 segundos
          var t = setTimeout(hideSplash, 3000);

@@ -83,7 +83,7 @@ function renderQuestion() {
   const container = document.getElementById('questionContainer');
   if (!container) return;
   
-  const subject = SUBJECTS[q.subject];
+  const subject = SUBJ_INFO[q.subject];
   
   // Build question HTML
   let html = `
@@ -302,7 +302,7 @@ function renderScores(scores) {
   let html = '<div class="scores-grid">';
   
   Object.entries(scores).forEach(([subj, data]) => {
-    const subject = SUBJECTS[subj];
+    const subject = SUBJ_INFO[subj];
     html += `
       <div class="score-card">
         <div class="score-subj" style="color:${subject.color}">${subject.name}</div>
@@ -450,12 +450,13 @@ function renderHomeScreen() {
   const container = document.getElementById('subjectGrid');
   if (!container) return;
   
-  const simulacro = SIMULACROS[state.simulacroId];
-  if (!simulacro) return;
+  const subjects = typeof getSimulacroSubjects === 'function' 
+    ? getSimulacroSubjects(state.simulacroId) 
+    : [];
   
   let html = '';
-  simulacro.subjects.forEach(subjKey => {
-    const subj = SUBJECTS[subjKey];
+  subjects.forEach(subj => {
+    const subjKey = subj.key;
     const qCount = QB[subjKey] ? QB[subjKey].questions.length : 0;
     html += `
       <div class="subj-card s-${subjKey}" data-subject="${subjKey}" onclick="selectSubject('${subjKey}')">
