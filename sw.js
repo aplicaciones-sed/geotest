@@ -1,4 +1,4 @@
-const CACHE = 'portal-sed-narino-v9';
+const CACHE = 'portal-sed-narino-v10';
 
 const ASSETS = [
   './',
@@ -17,12 +17,10 @@ const ASSETS = [
   './shared/css/exam.css',
   './shared/js/app.js',
   './shared/js/data.js',
-  './simulacro-1/index.html',
-  './simulacro-1/manifest.json',
-  './simulacro-1/sw.js',
-  './simulacro-2/index.html',
-  './simulacro-2/manifest.json',
-  './simulacro-2/sw.js',
+  './simulacro/index.html',
+  './simulacro/manifest.json',
+  './simulacro/sw.js',
+  './js/simulacros.js',
 ];
 
 self.addEventListener('install', e => {

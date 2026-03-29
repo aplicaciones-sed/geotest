@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="theme-color" content="#1a3a5c">
+<meta name="description" content="Simulador SABER 11 - Secretaría de Educación de Nariño">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SABER 11 Nariño">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="../assets/img/icon-192.png">
+<title>Simulador SABER 11° · Nariño</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../shared/css/exam.css">
+<script src="../js/simulacros.js"></script>
+<script src="../js/questions.js"></script>
+<script src="../shared/js/nivel.js"></script>
+<script src="../shared/js/meta.js"></script>
+<script src="../shared/js/app.js"></script>
+<script src="../shared/js/exam.js"></script>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="top-inner">
+    <div class="logo-gov">
+      <a href="../index.html" title="Volver al portal" style="text-decoration:none;display:flex"><div class="sed-logo-wrap">
+        <img class="sed-logo" src="../assets/img/logo.svg" alt="SED Nariño">
+      </div></a>
+    </div>
+    <div class="badge-saber" id="simulacroBadge">SABER 11°</div>
+  </div>
+</div>
+
+<div class="app">
+<div class="prog-wrap"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+
+<!-- HOME -->
+<div class="screen active" id="s-home">
+  <div class="card">
+    <div class="home-hero">
+      <h1 id="homeTitle">Simulacro #1<br>SABER 11°</h1>
+      <p id="homeDesc">Practica con preguntas e imágenes reales del examen ICFES. Selecciona una asignatura o realiza el examen completo</p>
+    </div>
+    <hr style="border:none;border-top:1px solid var(--border);margin:20px 0">
+    <div style="font-size:12px;font-weight:800;color:var(--text-3);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px">Elige una asignatura</div>
+    <div class="subject-grid" id="subjectGrid"></div>
+    <div style="margin-bottom:16px;padding:12px 16px;background:#f7f9fc;border-radius:var(--r);border:1px solid var(--border)">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div>
+          <div style="font-size:13px;font-weight:800;color:var(--text)">Retroalimentación inmediata</div>
+          <div style="font-size:11px;color:var(--text-3);margin-top:2px">Muestra resultado después de cada respuesta</div>
+        </div>
+        <label class="toggle-switch" onclick="toggleFeedbackMode()">
+          <input type="checkbox" id="feedbackToggle">
+          <span class="toggle-slider"></span>
+        </label>
+      </div>
+    </div>
+    <div style="margin-bottom:16px;padding:12px 16px;background:#fef9e7;border-radius:var(--r);border:1px solid #f0d88a">
+      <div style="font-size:11px;font-weight:800;color:var(--accent);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">Modo de tiempo</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn mode-btn" id="homeModeUntimed" onclick="setTimedMode(false)" style="flex:1;min-width:100px;padding:8px 12px;font-size:12px;border:2px solid var(--border);background:var(--surface);color:var(--text)">⏱️ Sin límite</button>
+        <button class="btn mode-btn active" id="homeModeTimed" onclick="setTimedMode(true)" style="flex:1;min-width:100px;padding:8px 12px;font-size:12px;border:2px solid var(--border);background:var(--surface);color:var(--text)">⏰ Cronometrado</button>
+      </div>
+      <div id="homeTimeInfo" style="display:none;margin-top:8px;font-size:11px;color:var(--text-2)">⏱️ <span id="timeDisplay">20 minutos</span></div>
+    </div>
+    <div class="actions">
+      <button class="btn btn-primary" id="btnStart" disabled onclick="startQuiz()">Comenzar simulacro ➜</button>
+      <button class="btn btn-outline" id="btnStartAll" onclick="startAllSubjects()">Examen completo 📋</button>
+    </div>
+    <div style="margin-top:12px;text-align:center">
+      <a href="../index.html" style="font-size:13px;color:var(--text-3);text-decoration:none;font-weight:700">← Volver al portal</a>
+    </div>
+    <div style="margin-top:14px;padding:10px 14px;background:#f6f8fa;border-radius:8px;border:1px solid var(--border)">
+      <p style="font-size:11px;color:var(--text-3);line-height:1.6;text-align:center">Contenido basado en publicaciones del <strong style="color:var(--text-2)">ICFES</strong> (www.icfes.gov.co), usado con fines académicos.</p>
+    </div>
+  </div>
+</div>
+
+<!-- INTRO -->
+<div class="screen" id="s-intro">
+  <div class="card"><div class="subj-intro" id="introContent"></div></div>
+</div>
+
+<!-- QUESTION -->
+<div class="screen" id="s-question">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+    <button class="btn btn-outline" style="padding:7px 14px;font-size:13px" onclick="confirmBack()">← Regresar</button>
+    <div class="stepper" id="stepperDots" style="flex:1;margin-bottom:0"></div>
+  </div>
+  <div class="card" id="questionCard">
+    <div class="q-meta">
+      <span class="q-subject-tag" id="qTag"></span>
+      <span class="q-num" id="qNum"></span>
+      <span id="timerDisplay" class="timer-display" style="display:none">⏱️ <span>0:00</span></span>
+    </div>
+    <div id="qContextBlock"></div>
+    <div class="q-text" id="qText"></div>
+    <div id="qImgBlock"></div>
+    <div class="opts" id="qOpts"></div>
+    <div class="feedback" id="feedbackBox">
+      <span class="fb-icon" id="fbIcon"></span>
+      <div class="fb-content"><h3 id="fbTitle"></h3><p id="fbText"></p></div>
+    </div>
+    <div id="fbMeta" style="display:none"></div>
+    <div class="actions" id="qActions" style="display:none">
+      <button class="btn btn-primary" id="btnNext" onclick="nextQuestion()">Siguiente ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div class="screen" id="s-results">
+  <div id="resultsContent"></div>
+</div>
+</div>
+
+<script>
+const IMGS = {};
+</script>
+
+<footer style="background:var(--primary);color:rgba(255,255,255,.5);text-align:center;padding:16px 24px;font-size:11px;border-top:1px solid rgba(255,255,255,.08)">
+  <p>Fuente: ICFES – Instituto Colombiano para la Evaluación de la Educación.</p>
+</footer>
+<div class="modal-overlay" id="modalBack" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <h3>⚠️ ¿Qué deseas hacer?</h3>
+    <p style="color:var(--text-2);font-size:13px;margin-bottom:16px">Elige una opción para continuar.</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;text-align:left" onclick="closeModal()">
+        <span style="font-size:18px">▶️</span>
+        <span><strong>Continuar simulacro</strong><br><small style="font-weight:400;opacity:.75">Seguir desde donde estaba</small></span>
+      </button>
+      <button class="btn btn-outline" style="justify-content:flex-start;gap:10px;text-align:left" onclick="closeModal();showIntro()">
+        <span style="font-size:18px">🔄</span>
+        <span><strong>Ir al inicio del simulacro</strong><br><small style="font-weight:400;opacity:.75">Seleccionar otra asignatura</small></span>
+      </button>
+      <a class="btn btn-primary" href="../index.html" style="justify-content:flex-start;gap:10px;text-align:left;text-decoration:none">
+        <span style="font-size:18px">🏠</span>
+        <span><strong>Salir al portal</strong><br><small style="font-weight:400;opacity:.75">Volver a la página principal</small></span>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+<div class="cuy-avatar" id="cuyAvatar">
+  <img id="cuyImg" src="../assets/img/cuy_correcto_ok.png" alt="¡Correcto!" />
+</div>
+<div id="cuyAvatarLeft" style="display:none">
+  <img id="cuyImgLeft" src="../assets/img/cuy_incorrecto_ok.png" alt="Incorrecto..." />
+</div>
+
+<!-- Modal Nivel de Desempeño -->
+<div id="nivelModal" onclick="if(event.target===this)closeNivelModal()">
+  <div class="nivel-sheet" id="nivelSheet"></div>
+</div>
+<script>
+const SUBJ_INFO = {
+  lc: { name: 'Lectura Crítica', icon: '📖', tag: 'tag-lc', color: '#6c4bc0', desc: 'Evalúa tu capacidad de interpretar, analizar y reflexionar sobre textos.', competencias: ['Identificar y entender los contenidos locales', 'Comprender cómo se articulan las partes de un texto', 'Reflexionar a partir de un texto y evaluar su contenido'] },
+  mat: { name: 'Matemáticas', icon: '📐', tag: 'tag-mat', color: '#1a3a5c', desc: 'Evalúa competencias matemáticas.', competencias: ['Interpretación y representación', 'Formulación y ejecución', 'Argumentación'] },
+  soc: { name: 'Sociales', icon: '🌎', tag: 'tag-soc', color: '#1e8a4a', desc: 'Evalúa conocimientos en ciencias sociales.', competencias: ['Pensamiento social', 'Interpretación y análisis de perspectivas', 'Pensamiento reflexivo y sistémico'] },
+  cn: { name: 'Ciencias Naturales', icon: '🔬', tag: 'tag-cn', color: '#c0392b', desc: 'Evalúa competencias científicas.', competencias: ['Uso comprensivo del conocimiento científico', 'Explicación de fenómenos', 'Indagación'] },
+  ing: { name: 'Inglés', icon: '🌐', tag: 'tag-ing', color: '#e8a020', desc: 'Evalúa competencias en inglés.', competencias: ['Competencia lingüística', 'Competencia pragmática', 'Competencia sociolingüística'] }
+};
+
+let SIMULACRO_ID = 1;
+let SIMULACRO_CONFIG = null;
+let ACTIVE_SUBJECTS = [];
+
+function getSimulacroFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('simulacro'), 10);
+  return (id === 1 || id === 2) ? id : 1;
+}
+
+function configureSimulacro() {
+  SIMULACRO_ID = getSimulacroFromURL();
+  SIMULACRO_CONFIG = SIMULACROS[SIMULACRO_ID] || SIMULACROS[1];
+  
+  document.getElementById('simulacroBadge').textContent = SIMULACRO_CONFIG.shortName;
+  document.getElementById('homeTitle').innerHTML = SIMULACRO_CONFIG.titulo.replace('·', '<br>');
+  document.getElementById('homeDesc').textContent = SIMULACRO_CONFIG.descripcion;
+  document.title = SIMULACRO_CONFIG.titulo + ' · Nariño';
+  
+  document.querySelector('meta[name="description"]').setAttribute('content', 
+    'Simulador SABER 11 - ' + SIMULACRO_CONFIG.descripcion + ' - Secretaría de Educación de Nariño');
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', 
+    SIMULACRO_CONFIG.shortName + ' Nariño');
+  
+  const btnStartAll = document.getElementById('btnStartAll');
+  if (SIMULACRO_ID === 2) {
+    btnStartAll.style.display = 'none';
+  } else {
+    btnStartAll.style.display = '';
+  }
+}
+
+function detectActiveSubjects() {
+  if (typeof QUESTIONS !== 'undefined') {
+    const subjectsWithQuestions = ['lc', 'mat', 'soc', 'cn', 'ing'];
+    ACTIVE_SUBJECTS = subjectsWithQuestions.filter(subj => {
+      return QUESTIONS.some(q => 
+        q.subject === subj && 
+        q.simulacros && 
+        q.simulacros.includes(SIMULACRO_ID)
+      );
+    });
+  } else {
+    ACTIVE_SUBJECTS = ['lc', 'mat'];
+  }
+}
+
+function renderSubjects() {
+  const grid = document.getElementById('subjectGrid');
+  grid.innerHTML = '';
+  
+  ACTIVE_SUBJECTS.forEach(subj => {
+    const info = SUBJ_INFO[subj];
+    const count = getSubjectQuestionCount(subj);
+    const div = document.createElement('div');
+    div.className = `subj-card s-${subj}`;
+    div.onclick = () => selectSubject(subj);
+    div.innerHTML = `<span class="subj-icon">${info.icon}</span><div class="subj-name">${info.name}</div><div class="subj-count">${count} preguntas</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function getSubjectQuestionCount(subject) {
+  if (typeof QUESTIONS !== 'undefined') {
+    const count = QUESTIONS.filter(q => q.subject === subject && q.simulacros && q.simulacros.includes(SIMULACRO_ID)).length;
+    return count > 0 ? count : (SIMULACRO_ID === 2 ? 20 : 5);
+  }
+  return SIMULACRO_ID === 2 ? 20 : 5;
+}
+
+const QB = {};
+
+window.addEventListener('DOMContentLoaded', function() {
+  configureSimulacro();
+  
+  if (typeof QUESTIONS !== 'undefined') {
+    detectActiveSubjects();
+    
+    const simulacroQuestions = QUESTIONS.filter(q => q.simulacros && q.simulacros.includes(SIMULACRO_ID));
+    if (simulacroQuestions.length > 0) {
+      ACTIVE_SUBJECTS.forEach(subj => {
+        const subjQuestions = simulacroQuestions.filter(q => q.subject === subj);
+        if (subjQuestions.length > 0) {
+          QB[subj] = { ...SUBJ_INFO[subj], questions: subjQuestions };
+        }
+      });
+      renderSubjects();
+      console.log('QB actualizado con preguntas para simulacro', SIMULACRO_ID, '- Materias:', ACTIVE_SUBJECTS);
+    }
+  } else {
+    detectActiveSubjects();
+    renderSubjects();
+  }
+  
+  if (typeof initApp === 'function') {
+    initApp(SIMULACRO_ID);
+  }
+});
+</script>
+</body>
+</html>

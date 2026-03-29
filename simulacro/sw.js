@@ -1,16 +1,21 @@
-const CACHE = 'simulacro-2-v3';
+const CACHE = 'simulacro-v4';
 const ASSETS = [
   './index.html',
   './manifest.json',
   './sw.js',
   '../shared/css/exam.css',
   '../shared/js/app.js',
-  '../shared/js/data.js',
-  '../js/config.js',
+  '../shared/js/exam.js',
+  '../shared/js/meta.js',
+  '../shared/js/nivel.js',
+  '../js/simulacros.js',
   '../js/questions.js',
   '../assets/img/icon-192.png',
   '../assets/img/icon-512.png',
   '../assets/img/icon-escudo.svg',
+  '../assets/img/logo.svg',
+  '../assets/img/cuy_correcto_ok.png',
+  '../assets/img/cuy_incorrecto_ok.png',
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
@@ -25,5 +30,5 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 self.addEventListener('fetch', e => {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./index.html'))));
 });
