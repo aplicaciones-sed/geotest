@@ -8,9 +8,9 @@ const ASSETS = [
   '../shared/js/data.js',
   '../js/config.js',
   '../js/questions.js',
-  '../icon-192.png',
-  '../icon-512.png',
-  '../icon-escudo.svg',
+  '../assets/img/icon-192.png',
+  '../assets/img/icon-512.png',
+  '../assets/img/icon-escudo.svg',
 ];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
