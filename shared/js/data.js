@@ -1,4 +1,99 @@
-// NIVEL_INFO - Información de niveles de desempeño por materia
+// ════════════ QUESTION & LEVEL DATA ════════════
+// Metadata for questions and level information
+
+/* ════════════ SUBJECTS & SIMULACROS ════════════ */
+const SUBJ_INFO = {
+  lc: { name: 'Lectura Crítica', icon: '📖', tag: 'tag-lc', color: '#6c4bc0', desc: 'Evalúa tu capacidad de interpretar, analizar y reflexionar sobre textos.', competencias: ['Identificar y entender los contenidos locales', 'Comprende cómo se articulan las partes de un texto', 'Reflexiona a partir de un texto y evaluar su contenido'] },
+  mat: { name: 'Matemáticas', icon: '📐', tag: 'tag-mat', color: '#1a3a5c', desc: 'Evalúa competencias matemáticas.', competencias: ['Interpretación y representación', 'Formulación y ejecución', 'Argumentación'] },
+  soc: { name: 'Sociales', icon: '🌎', tag: 'tag-soc', color: '#1e8a4a', desc: 'Evalúa conocimientos en ciencias sociales.', competencias: ['Pensamiento social', 'Interpretación y análisis de perspectivas', 'Pensamiento reflexivo y sistémico'] },
+  cn: { name: 'Ciencias Naturales', icon: '🔬', tag: 'tag-cn', color: '#c0392b', desc: 'Evalúa competencias científicas.', competencias: ['Uso comprensivo del conocimiento científico', 'Explicación de fenómenos', 'Indagación'] },
+  ing: { name: 'Inglés', icon: '🇬🇧', tag: 'tag-ing', color: '#e8a020', desc: 'Evalúa competencias en inglés.', competencias: ['Competencia lingüística', 'Competencia pragmática', 'Competencia sociolingüística'] }
+};
+
+const SIMULACROS = {
+  1: {
+    id: 1,
+    nombre: "Simulacro 1",
+    titulo: "Simulador SABER 11°",
+    descripcion: "Examen completo - Todas las materias",
+    shortName: "SABER 11",
+    cacheName: "simulacro-v1"
+  },
+  2: {
+    id: 2,
+    nombre: "Simulacro 2",
+    titulo: "SABER 11° · Simulacro 2020",
+    descripcion: "Matemáticas y Lectura Crítica",
+    shortName: "Sim 2020",
+    cacheName: "simulacro-v1"
+  }
+};
+
+function getSimulacroSubjects(simId) {
+  if (typeof QUESTIONS === 'undefined') return [];
+  const subjectKeys = ['lc', 'mat', 'soc', 'cn', 'ing'];
+  return subjectKeys.filter(subj => {
+    return QUESTIONS.some(q => q.subject === subj && q.simulacros && q.simulacros.includes(simId));
+  }).map(key => ({
+    key: key,
+    name: SUBJ_INFO[key].name,
+    icon: SUBJ_INFO[key].icon
+  }));
+}
+
+/* ════════════ META_QB - Question Metadata ════════════ */
+const META_QB = {
+  'lc': [
+    {comp:"Reflexiona a partir de un texto y evalúa su contenido",afirm:"Reflexiona a partir de un texto y evalúa su contenido",nivel:"4",tipo:"Informativo-filos\u00f3fico"},
+    {comp:"Comprende cómo se articulan las partes de un texto para darle un sentido global",afirm:"Relaciona, identifica y deduce información para construir el sentido global de un texto",nivel:"2",tipo:"Discontinuo-literario"},
+    {comp:"Comprende cómo se articulan las partes de un texto para darle un sentido global",afirm:"Relaciona, identifica y deduce información para construir el sentido global de un texto",nivel:"3",tipo:"Continuo-literario"},
+    {comp:"Reflexiona a partir de un texto y evalúa su contenido",afirm:"Reflexiona a partir de un texto y evalúa su contenido",nivel:"4",tipo:"Continuo-informativo"},
+    {comp:"Comprende el significado de un texto en su contexto",afirm:"Recupera información explícita e implícita de un texto",nivel:"3",tipo:"Discontinuo-informativo"},
+    {comp:"Comprende cómo se articulan las partes de un texto para darle un sentido global",afirm:"Identifica y caracteriza las ideas que articulan un texto",nivel:"4",tipo:"Informativo-filos\u00f3fico"},
+  ],
+  'mat': [
+    {comp:"Interpretación y representación",afirm:"Comprende y transforma la información cuantitativa y esquemática presentada en distintos formatos",nivel:"3"},
+    {comp:"Formulación",afirm:"Frente a un problema que involucre información cuantitativa, plantea e implementa estrategias que lleguen a soluciones adecuadas",nivel:"4"},
+    {comp:"Interpretación y representación",afirm:"Comprende y transforma la información cuantitativa y esquemática presentada en distintos formatos",nivel:"2"},
+    {comp:"Argumentación",afirm:"Valida procedimientos y estrategias matemáticas utilizadas para dar solución a problemas",nivel:"4"},
+    {comp:"Interpretación y representación",afirm:"Comprende y transforma la información cuantitativa y esquemática presentada en distintos formatos",nivel:"2"},
+    {comp:"Formulación",afirm:"Frente a un problema que involucre información cuantitativa, planta e implementa estrategias que lleguen a soluciones adecuadas",nivel:"2"},
+    {comp:"Argumentación",afirm:"Valida procedimientos y estrategias matemáticas utilizadas para dar solución a problemas",nivel:"3"},
+    {comp:"Formulación",afirm:"Frente a un problema que involucre información cuantitativa, planta e implementa estrategias que lleguen a soluciones adecuadas",nivel:"3"},
+    {comp:"Argumentación",afirm:"Valida procedimientos y estrategias matemáticas utilizadas para dar solución a problemas",nivel:"4"},
+  ],
+  'soc': [
+    {comp:"Pensamiento social",afirm:"Comprende modelos conceptuales, sus características y contextos de aplicación",nivel:"2"},
+    {comp:"Pensamiento social",afirm:"Comprende modelos conceptuales, sus características y contextos de aplicación",nivel:"2"},
+    {comp:"Pensamiento social",afirm:"Comprende dimensiones espaciales y temporales de eventos, problemáticas y prácticas sociales",nivel:"4"},
+    {comp:"Interpretación y análisis de perspectivas",afirm:"Comprende perspectivas de distintos actores y grupos sociales",nivel:"2"},
+    {comp:"Interpretación y análisis de perspectivas",afirm:"Contextualiza y evalúa usos de fuentes y argumentos",nivel:"3"},
+    {comp:"Interpretación y análisis de perspectivas",afirm:"Contextualiza y evalúa usos de fuentes y argumentos",nivel:"3"},
+    {comp:"Pensamiento reflexivo y sistémico",afirm:"Comprende que los problemas y sus soluciones involucran distintas dimensiones y reconoce relaciones entre estas",nivel:"2"},
+    {comp:"Pensamiento reflexivo y sistémico",afirm:"Evalúa usos sociales de las ciencias sociales",nivel:"3"},
+    {comp:"Pensamiento reflexivo y sistémico",afirm:"Evalúa usos sociales de las ciencias sociales",nivel:"4"},
+  ],
+  'cn': [
+    {comp:"Uso comprensivo del conocimiento científico",afirm:"Asociar fenómenos naturales con conceptos propios del conocimiento científico",nivel:"3"},
+    {comp:"Uso comprensivo del conocimiento científico",afirm:"Asociar fenómenos naturales con conceptos propios del conocimiento científico",nivel:"4"},
+    {comp:"Uso comprensivo del conocimiento científico",afirm:"Identificar las características de algunos fenómenos de la naturaleza basado en el análisis de información y conceptos propios del conocimiento científico",nivel:"3"},
+    {comp:"Explicación de fenómenos",afirm:"Explicar cómo ocurren algunos fenómenos de la naturaleza basado en observaciones, en patrones y en conceptos propios del conocimiento científico",nivel:"3"},
+    {comp:"Explicación de fenómenos",afirm:"Modelar fenómenos de la naturaleza basado en el análisis de variables, la relación entre dos o más conceptos del conocimiento científico y de la evidencia derivada de investigaciones científicas",nivel:"3"},
+    {comp:"Explicación de fenómenos",afirm:"Analizar el potencial del uso de recursos naturales o artefactos y sus efectos sobre el entorno y la salud, así como las posibilidades de desarrollo para las comunidades",nivel:"2"},
+    {comp:"Indagación",afirm:"Comprender que a partir de la investigación científica se construyen explicaciones sobre el mundo natural",nivel:"2"},
+    {comp:"Indagación",afirm:"Derivar conclusiones para algunos fenómenos de la naturaleza basándose en conocimientos científicos y en la evidencia de su propia investigación y de la de otros",nivel:"4"},
+    {comp:"Indagación",afirm:"Observar y relacionar patrones en los datos para evaluar las predicciones",nivel:"2"},
+    {comp:"Indagación",afirm:"Utilizar algunas habilidades de pensamiento y de procedimiento para evaluar predicciones",nivel:"2"},
+  ],
+  'ing': [
+    {comp:"Reading comprehension",afirm:"Comprende información explícita en textos de mediana complejidad",nivel:"B1"},
+    {comp:"Reading comprehension",afirm:"Comprende información explícita e implícita en textos cortos",nivel:"B1"},
+    {comp:"Reading comprehension",afirm:"Comprende el sentido general de una conversación corta",nivel:"A2"},
+    {comp:"Reading comprehension",afirm:"Comprende la intención comunicativa de un texto de mediana extensión",nivel:"B1+"},
+  ],
+};
+
+/* ════════════ NIVEL_INFO - Level Information ════════════ */
 const NIVEL_INFO = {
   lc: {
     name: 'Lectura Crítica',
@@ -74,14 +169,14 @@ const NIVEL_INFO = {
   soc: {
     name: 'Sociales y Ciudadanas',
     1: { range: 'Puntaje 0 – 40', summary: '', 
-    items: ['El estudiante que se ubicua en este nivel podría reconocer algunos derechos ciudadanos en situaciones sencillas.'] },
+    items: ['El estudiante que se ubicua en este nivel podría reconocer algunos derechos ciudadanos en situaciones sencilla.'] },
     2: { range: 'Puntaje 41 – 55', summary: 'Además de lo descrito en el nivel anterior, el estudiante reconoce deberes del Estado colombiano y situaciones de protección o vulneración de derechos.', 
     items: [
       'Identifica derechos ciudadanos y deberes del Estado establecidos en la Constitución Política de Colombia.',
       'Relaciona la conducta de una persona con su forma de ver la vida.',
       'Reconoce los efectos de una solución y las dimensiones que privilegia.',
       'Identifica contextos o procesos en los que se inscribe una fuente o evento.'] },
-    3: { range: 'Puntaje 56 – 70', summary: 'Además de lo descrito en los niveles anteriores, el estudiante identifica prejuicios o intenciones contenidos en una afirmación y reconoce las dimensiones e intereses involucrados.', 
+    3: { range: 'Puntaje 56 – 70', summary: 'Además de lo descrito en los niveles anteriores, el estudiante identifica prejudices o intenciones contenidos en una afirmación y reconoce las dimensiones e intereses involucrados.', 
     items: [
       'Reconoce intenciones y prejuicios, así como argumentos similares o diferentes dados en un contexto específico.',
       'Identifica dimensiones (económicas, políticas, culturales, ambientales, etc.) involucradas en situaciones.',
@@ -119,7 +214,7 @@ const NIVEL_INFO = {
       'Relaciona variables para explicar algunos fenómenos naturales.'] },
     4: { range: 'Puntaje 71 – 100', summary: 'Además de lo descrito en los niveles anteriores, el estudiante usa conceptos, teorías o leyes en la solución de situaciones problema.', 
     items: [
-      'Plantea preguntas de investigación desde las ciencias naturales a partir de un contexto determinado.',
+      'Plantea preguntas de investigación desde las naturales a partir de un contexto determinado.',
       'Establece conclusiones derivadas de una investigación.',
       'Contrasta modelos de las ciencias naturales con fenómenos cotidianos.',
       'Resuelve situaciones problema haciendo uso de conceptos, leyes y teorías de las ciencias naturales.',

@@ -1,5 +1,79 @@
 // ════════════ SHARED EXAM LOGIC ════════════
 // Common functions for both simulacro-1 and simulacro-2
+// SUBJ_INFO, SIMULACROS, getSimulacroSubjects defined in data.js
+
+/* ════════════ SIMULACRO CONFIG ════════════ */
+let SIMULACRO_ID = 1;
+let SIMULACRO_CONFIG = null;
+let ACTIVE_SUBJECTS = [];
+const QB = {};
+
+function getSimulacroFromURL() {
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('simulacro'), 10);
+  return (id === 1 || id === 2) ? id : 1;
+}
+
+function configureSimulacro() {
+  SIMULACRO_ID = getSimulacroFromURL();
+  state.simulacroId = SIMULACRO_ID;
+  SIMULACRO_CONFIG = SIMULACROS[SIMULACRO_ID] || SIMULACROS[1];
+  
+  document.getElementById('simulacroBadge').textContent = SIMULACRO_CONFIG.shortName;
+  document.getElementById('homeTitle').innerHTML = SIMULACRO_CONFIG.titulo.replace('·', '<br>');
+  document.getElementById('homeDesc').textContent = SIMULACRO_CONFIG.descripcion;
+  document.title = SIMULACRO_CONFIG.titulo + ' · Nariño';
+  
+  document.querySelector('meta[name="description"]').setAttribute('content', 
+    'Simulador SABER 11 - ' + SIMULACRO_CONFIG.descripcion + ' - Secretaría de Educación de Nariño');
+  document.querySelector('meta[name="apple-mobile-web-app-title"]').setAttribute('content', 
+    SIMULACRO_CONFIG.shortName + ' Nariño');
+  
+  const btnStartAll = document.getElementById('btnStartAll');
+  if (SIMULACRO_ID === 2) {
+    btnStartAll.style.display = 'none';
+  } else {
+    btnStartAll.style.display = '';
+  }
+}
+
+function detectActiveSubjects() {
+  if (typeof QUESTIONS !== 'undefined') {
+    const subjectsWithQuestions = ['lc', 'mat', 'soc', 'cn', 'ing'];
+    ACTIVE_SUBJECTS = subjectsWithQuestions.filter(subj => {
+      return QUESTIONS.some(q => 
+        q.subject === subj && 
+        q.simulacros && 
+        q.simulacros.includes(SIMULACRO_ID)
+      );
+    });
+  } else {
+    ACTIVE_SUBJECTS = ['lc', 'mat'];
+  }
+}
+
+function renderSubjects() {
+  const grid = document.getElementById('subjectGrid');
+  grid.innerHTML = '';
+  
+  ACTIVE_SUBJECTS.forEach(subj => {
+    const info = SUBJ_INFO[subj];
+    const count = getSubjectQuestionCount(subj);
+    const div = document.createElement('div');
+    div.className = `subj-card s-${subj}`;
+    div.onclick = () => selectSubject(subj);
+    div.innerHTML = `<span class="subj-icon">${info.icon}</span><div class="subj-name">${info.name}</div><div class="subj-count">${count} preguntas</div>`;
+    grid.appendChild(div);
+  });
+}
+
+function getSubjectQuestionCount(subject) {
+  if (typeof QUESTIONS !== 'undefined') {
+    const count = QUESTIONS.filter(q => q.subject === subject && q.simulacros && q.simulacros.includes(SIMULACRO_ID)).length;
+    return count > 0 ? count : (SIMULACRO_ID === 2 ? 20 : 5);
+  }
+  return SIMULACRO_ID === 2 ? 20 : 5;
+}
 
 /* ════════════ STATE ════════════ */
 let state = {
@@ -554,4 +628,36 @@ function launchConfetti(n){
     document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
   }
 }
+
+/* ════════════ INIT ════════════ */
+window.addEventListener('DOMContentLoaded', function() {
+  configureSimulacro();
+  
+  if (typeof QUESTIONS !== 'undefined') {
+    detectActiveSubjects();
+    renderSubjects();
+    
+    const simulacroQuestions = QUESTIONS.filter(q => q.simulacros && q.simulacros.includes(SIMULACRO_ID));
+    if (simulacroQuestions.length > 0) {
+      ACTIVE_SUBJECTS.forEach(subj => {
+        const subjQuestions = simulacroQuestions.filter(q => q.subject === subj);
+        if (subjQuestions.length > 0) {
+          QB[subj] = { ...SUBJ_INFO[subj], questions: subjQuestions };
+        }
+      });
+      console.log('QB actualizado con preguntas para simulacro', SIMULACRO_ID, '- Materias:', ACTIVE_SUBJECTS);
+    }
+  } else {
+    detectActiveSubjects();
+    renderSubjects();
+  }
+});
+
+/* ════════════ IMAGES ════════════ */
+const IMGS = {};
+function getImg(key) {
+  if (IMGS[key]) return IMGS[key];
+  return `../shared/img/questions/${key}.png`;
+}
+
 if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));

@@ -17,8 +17,7 @@
        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Nunito:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap"
        rel="stylesheet">
     <link rel="stylesheet" href="shared/css/portal.css">
-    <script src="js/simulacros.js"></script>
-    <script src="js/questions.js"></script>
+    <script src="shared/js/questions.js"></script>
 </head>
 
 <body>
@@ -336,81 +335,8 @@
 
    </div><!-- end about page -->
 
-   <script>
-      function toggleMobileMenu() {
-         const btn = document.getElementById('navHamburger');
-         const menu = document.getElementById('navMobileMenu');
-         btn.classList.toggle('open');
-         menu.classList.toggle('open');
-      }
-      function closeMobileMenu() {
-         document.getElementById('navHamburger').classList.remove('open');
-         document.getElementById('navMobileMenu').classList.remove('open');
-      }
-      function showPage(name) {
-         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-         document.getElementById('page-' + name).classList.add('active');
-         document.querySelectorAll('.nav-links a, .nav-mobile-menu a').forEach(a => a.classList.remove('active'));
-         if (name === 'home') document.querySelector('.nav-links a:first-child').classList.add('active');
-         window.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-      function renderSimulacroBadges() {
-         if (typeof getSimulacroSubjects !== 'function') return;
-         [1, 2].forEach(simId => {
-            const container = document.getElementById('sim-badges-' + simId);
-            if (!container) return;
-            const subjects = getSimulacroSubjects(simId);
-            if (subjects.length > 0) {
-               container.innerHTML = subjects.map(s => 
-                  '<span class="sim-badge">' + s.icon + ' ' + s.name + '</span>'
-               ).join('');
-            }
-         });
-      }
-   </script>
-   <script>
-      if ('serviceWorker' in navigator) {
-         window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(() => { });
-         });
-      }
-   </script>
-   <script>
-      /* ── Splash Screen – solo una vez por sesión ── */
-      (function () {
-         var splash = document.getElementById('splashScreen');
-         if (!splash) return;
-
-          // Si ya se mostró en esta sesión, ocultarlo de inmediato sin animación
-          if (sessionStorage.getItem('splashShown')) {
-             splash.style.display = 'none';
-             renderSimulacroBadges();
-             return;
-          }
-
-         function hideSplash() {
-             splash.classList.add('sp-fade-out');
-             setTimeout(function () {
-                splash.style.display = 'none';
-                renderSimulacroBadges();
-             }, 650);
-             sessionStorage.setItem('splashShown', '1');
-          }
-
-         // Auto-ocultar a los 3 segundos
-         var t = setTimeout(hideSplash, 3000);
-
-         // Toque / clic: ocultar inmediatamente
-         splash.addEventListener('click', function () {
-            clearTimeout(t);
-            hideSplash();
-         });
-         splash.addEventListener('touchstart', function () {
-            clearTimeout(t);
-            hideSplash();
-         }, { passive: true });
-      })();
-   </script>
+    <script src="shared/js/data.js"></script>
+    <script src="shared/js/portal.js"></script>
 </body>
 
 </html>

@@ -5,8 +5,7 @@ const ASSETS = [
   './index.html',
   './shared/css/portal.css',
   './shared/css/exam.css',
-  './js/simulacros.js',
-  './js/questions.js',
+  './shared/js/questions.js',
   './manifest.json',
   './assets/img/icon-192.png',
   './assets/img/icon-512.png',
@@ -19,12 +18,11 @@ const ASSETS = [
   './simulacro/manifest.json',
   './simulacro/sw.js',
   './shared/js/exam.js',
-  './shared/js/nivel.js',
-  './shared/js/meta.js',
-  './shared/img/test_triangulo_eq.png',
-  './shared/img/test_triangulo_recto.png',
-  './shared/img/test_triangulo_acut.png',
-  './shared/img/test_cuadrilatero.png',
+  './shared/js/data.js',
+  './shared/img/questions/test_triangulo_eq.png',
+  './shared/img/questions/test_triangulo_recto.png',
+  './shared/img/questions/test_triangulo_acut.png',
+  './shared/img/questions/test_cuadrilatero.png',
 ];
 
 self.addEventListener('install', e => {
