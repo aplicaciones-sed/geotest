@@ -18,13 +18,17 @@ const QUESTIONS = [
   {
     id: 101, simulacros: [1,3], subject: 'lc',
     context: '<div style="margin-bottom:6px;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:#7a5010;padding:3px 0">Responda la pregunta 1 de acuerdo con la siguiente información:</div><div style="font-size:14px;line-height:1.75;color:#1a1a1a;text-align:justify">Aunque las comodidades de esta vida pueden aumentarse con la ayuda mutua, sin embargo, como eso se puede conseguir dominando a los demás mejor que asociándose con ellos, nadie debe dudar de que los hombres por su naturaleza, si no existiera el miedo, se verían inclinados más al dominio que a la sociedad. Por lo tanto, hay que afirmar que el origen de las sociedades grandes y duraderas no se ha debido a la mutua benevolencia de los hombres sino al miedo mutuo.</div><div style="margin-top:10px;font-size:11px;color:#888;font-style:italic;text-align:center">Tomado de: Hobbes, T. (1999). <em>Tratado sobre el ciudadano</em>. trad. Joaquín Rodríguez Feo. Madrid: Trotta.</div>',
-    text: 'De acuerdo con las ideas expresadas en el texto, si "los hombres por su naturaleza están más inclinados al dominio que a la sociedad", ¿por qué aparecieron sociedades grandes y duraderas?',
-    opts: ["A. Es natural para el hombre asociarse con otros para ejercer su dominio con seguridad.", "B. Para ampliar su capacidad de dominio, al hombre le resulta más efectivo vivir en sociedad.", "C. Es propio del hombre evitar todo tipo de dominio a través de las relaciones confiables que le brinda la vida en sociedad.", "D. El hombre busca la seguridad y es más seguro para él vivir en comunidad que estar expuesto a ser dominado por otro."],
+    text: 'De acuerdo con las ideas expresadas en el texto, si “los hombres por su naturaleza están más inclinados al dominio que a la sociedad”, ¿por qué aparecieron sociedades grandes y duraderas?',
+    opts: [
+      "A. Es natural para el hombre asociarse con otros para ejercer su dominio con seguridad.", 
+      "B. Para ampliar su capacidad de dominio, al hombre le resulta más efectivo vivir en sociedad.", 
+      "C. Es propio del hombre evitar todo tipo de dominio a través de las relaciones confiables que le brinda la vida en sociedad.", 
+      "D. El hombre busca la seguridad y es más seguro para él vivir en comunidad que estar expuesto a ser dominado por otro."],
     correct: 3,
     hint: "El texto afirma explícitamente que el origen de las sociedades se debe al miedo mutuo, no a la benevolencia.",
     comp: "Reflexiona a partir de un texto y evalúa su contenido.",
     nivel: 4,
-    explain: "El texto establece que el origen de las sociedades duraderas es el miedo mutuo."
+    explain: "“En este caso, el estudiante debe ser capaz de dar cuenta de por qué un determinado enunciado es una razón para justificar la tesis del texto. Concretamente, debe comprender que, en este caso, según Hobbes, la razón que tiene el hombre para asociarse es el peligro que representan los otros”."
   },
   {
     id: 102, simulacros: [1], subject: 'lc',
