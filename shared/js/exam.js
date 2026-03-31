@@ -38,8 +38,8 @@ function detectActiveSubjects() {
     ACTIVE_SUBJECTS = subjectsWithQuestions.filter(subj => {
       return QUESTIONS.some(q => 
         q.subject === subj && 
-        q.simulacros && 
-        q.simulacros.includes(SIMULACRO_ID)
+        q.simulators && 
+        q.simulators.includes(SIMULACRO_ID)
       );
     });
   } else {
@@ -64,7 +64,7 @@ function renderSubjects() {
 
 function getSubjectQuestionCount(subject) {
   if (typeof QUESTIONS !== 'undefined') {
-    const count = QUESTIONS.filter(q => q.subject === subject && q.simulacros && q.simulacros.includes(SIMULACRO_ID)).length;
+    const count = QUESTIONS.filter(q => q.subject === subject && q.simulators && q.simulators.includes(SIMULACRO_ID)).length;
     return count > 0 ? count : 5;
   }
   return 5;
@@ -91,9 +91,9 @@ let state = {
 /* ════════════ SHUFFLE ════════════ */
 function shuffleOpts(q){
   if(!q._origOpts){
-    q._origOpts=[...q.opts];
+    q._origOpts=[...q.options];
     q._origCorrect=q.correct;
-    q._origOptsImg=q.optsImg ? [...q.optsImg] : null;
+    q._origOptsImg=q.optionsImg ? [...q.optionsImg] : null;
   }
   const origOpts=q._origOpts;
   const origCorrect=q._origCorrect;
@@ -103,7 +103,7 @@ function shuffleOpts(q){
   const newOpts=order.map(i=>origOpts[i]);
   const newOptsImg=origOptsImg ? order.map(i=>origOptsImg[i]) : null;
   const newCorrect=order.indexOf(origCorrect);
-  return{...q, opts:newOpts, optsImg:newOptsImg, correct:newCorrect, _origCorrect:origCorrect};
+  return{...q, options:newOpts, optionsImg:newOptsImg, correct:newCorrect, _origCorrect:origCorrect};
 }
 
 /* ════════════ HOME ════════════ */
@@ -274,9 +274,9 @@ function showQuestion(){
   }
   document.getElementById('qImgBlock').innerHTML=qImgHtml;
   let optsHtml='';
-  q.opts.forEach((o,i)=>{
+  q.options.forEach((o,i)=>{
     const letter=['A','B','C','D'][i];
-    const optImg=q.optsImg&&q.optsImg[i]?`<img src="${getImg(q.optsImg[i])}" alt="Opción ${letter}" class="opt-img" loading="lazy">`:'';
+    const optImg=q.optionsImg&&q.optionsImg[i]?`<img src="${getImg(q.optionsImg[i])}" alt="Opción ${letter}" class="opt-img" loading="lazy">`:'';
     optsHtml+=`<button class="opt" id="opt${i}" onclick="selectOpt(${i})">
       <span class="opt-letter">${letter}</span>
       <span class="opt-text">${o.replace(/^[A-D]\.\s*/,'')}</span>
@@ -371,7 +371,7 @@ function selectOpt(idx){
         .replace(new RegExp(`\\bSolo ${orig}\\b`, 'g'), `Solo ${rep}`)
         .replace(new RegExp(`\\bOnly ${orig}\\b`, 'g'), `Only ${rep}`);
     }
-    const fixedExplain = fixExplainLetter(q.explain, origLetter, newLetter);
+    const fixedExplain = fixExplainLetter(q.justification, origLetter, newLetter);
     document.getElementById('fbText').textContent=fixedExplain;
     const subj=state.allSubjects?state.subject:state.subject;
     const qIdx=state.current;
@@ -387,7 +387,7 @@ function selectOpt(idx){
     }
     const metaDiv = document.getElementById('fbMeta');
     if(metaDiv){
-      const compFull = q.comp || '';
+      const compFull = q.competency || '';
       const parts = compFull.split(' · ');
       const competencia = parts[0] || '';
       const afirmacion = parts.length > 1 && !parts[1].startsWith('Tipo:') && !parts[1].startsWith('Componente:') ? parts[1] : '';
@@ -553,7 +553,7 @@ function showResults(){
             .replace(new RegExp(`\\bSolo ${orig}\\b`, 'g'), `Solo ${rep}`)
             .replace(new RegExp(`\\bOnly ${orig}\\b`, 'g'), `Only ${rep}`);
         }
-        const fixedExplain = fixExplainLetter(q.explain, origLetter, newLetter);
+        const fixedExplain = fixExplainLetter(q.justification, origLetter, newLetter);
         return `<div class="review-card ${correct?'review-correct':'review-wrong'}">
           <div class="review-card-header">
             <span class="review-q-num">${i+1}</span>
@@ -567,18 +567,18 @@ function showResults(){
             ${correct?`
             <div class="review-answer answer-correct">
               <span class="answer-label">Respuesta correcta</span>
-              <span class="answer-text">${q.opts[q.correct]?.replace(/^[A-D]\.\s*/,'') || ''}</span>
-              ${q.optsImg&&q.optsImg[q.correct]?'<img src="'+getImg(q.optsImg[q.correct])+'" class="review-opt-img" alt="Imagen respuesta">':''}
+              <span class="answer-text">${q.options[q.correct]?.replace(/^[A-D]\.\s*/,'') || ''}</span>
+              ${q.optionsImg&&q.optionsImg[q.correct]?'<img src="'+getImg(q.optionsImg[q.correct])+'" class="review-opt-img" alt="Imagen respuesta">':''}
             </div>`:`
             <div class="review-answer answer-wrong">
               <span class="answer-label">Tu respuesta</span>
-              <span class="answer-text">${q.opts[userAns]?.replace(/^[A-D]\.\s*/,'') || '<em>Sin responder</em>'}</span>
-              ${q.optsImg&&userAns!==null&&q.optsImg[userAns]?'<img src="'+getImg(q.optsImg[userAns])+'" class="review-opt-img" alt="Tu respuesta">':''}
+              <span class="answer-text">${q.options[userAns]?.replace(/^[A-D]\.\s*/,'') || '<em>Sin responder</em>'}</span>
+              ${q.optionsImg&&userAns!==null&&q.optionsImg[userAns]?'<img src="'+getImg(q.optionsImg[userAns])+'" class="review-opt-img" alt="Tu respuesta">':''}
             </div>
             <div class="review-answer answer-correct">
               <span class="answer-label">Respuesta correcta</span>
-              <span class="answer-text">${q.opts[q.correct]?.replace(/^[A-D]\.\s*/,'') || ''}</span>
-              ${q.optsImg&&q.optsImg[q.correct]?'<img src="'+getImg(q.optsImg[q.correct])+'" class="review-opt-img" alt="Imagen respuesta">':''}
+              <span class="answer-text">${q.options[q.correct]?.replace(/^[A-D]\.\s*/,'') || ''}</span>
+              ${q.optionsImg&&q.optionsImg[q.correct]?'<img src="'+getImg(q.optionsImg[q.correct])+'" class="review-opt-img" alt="Imagen respuesta">':''}
             </div>`}
           </div>
           ${fixedExplain?'<div class="review-explain"><span class="explain-icon">💡</span><span>'+fixedExplain+'</span></div>':''}
@@ -635,7 +635,7 @@ window.addEventListener('DOMContentLoaded', function() {
     detectActiveSubjects();
     renderSubjects();
     
-    const simulacroQuestions = QUESTIONS.filter(q => q.simulacros && q.simulacros.includes(SIMULACRO_ID));
+    const simulacroQuestions = QUESTIONS.filter(q => q.simulators && q.simulators.includes(SIMULACRO_ID));
     if (simulacroQuestions.length > 0) {
       ACTIVE_SUBJECTS.forEach(subj => {
         const subjQuestions = simulacroQuestions.filter(q => q.subject === subj);

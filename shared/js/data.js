@@ -99,7 +99,7 @@ function getSimulacroSubjects(simId) {
     .filter((subj) => {
       return QUESTIONS.some(
         (q) =>
-          q.subject === subj && q.simulacros && q.simulacros.includes(simId),
+          q.subject === subj && q.simulators && q.simulators.includes(simId),
       );
     })
     .map((key) => ({
@@ -111,7 +111,7 @@ function getSimulacroSubjects(simId) {
 
 function getSimulacroQuestionCount(simId) {
   if (typeof QUESTIONS === "undefined") return 0;
-  return QUESTIONS.filter((q) => q.simulacros && q.simulacros.includes(simId))
+  return QUESTIONS.filter((q) => q.simulators && q.simulators.includes(simId))
     .length;
 }
 
