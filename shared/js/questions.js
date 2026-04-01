@@ -1178,7 +1178,7 @@ const QUESTIONS = [
   },
   {
     id: 40,
-    simulators: [1],
+    simulators: [1,3],
     subject: "soc",
     context: `<p>Un periódico colombiano publicó la siguiente noticia: "Luego de que la autoridad nacional a cargo de las licencias ambientales autorizara la construcción de un hotel ecoturístico dentro del parque Tayrona, territorio ancestral indígena, el ministro de Ambiente y Desarrollo Sostenible puso en duda la viabilidad de esa obra. De acuerdo con el ministro, la licencia que tiene este hotel no es viable porque permite talar una porción de bosque seco, ecosistema que está casi extinto en Colombia".</p><div style="margin-top:10px;font-size:11px;color:#888;font-style:italic;text-align:center"><p><em>Tomado y adaptado de: Redacción Vida de Hoy (2013, 10 de enero). Gobierno considera inviable hotel en el Tayrona. El Tiempo. Recuperado de http://www.eltiempo.com/archivo/dcumento/CMS-12505333</em></p></div>`,
     text: "En esta noticia, el narrador está dándole un mayor énfasis a",

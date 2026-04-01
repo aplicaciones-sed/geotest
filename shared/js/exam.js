@@ -182,8 +182,10 @@ function setTimedMode(timed){
   document.getElementById('modeTimed')?.classList.toggle('active',timed);
   document.getElementById('homeModeUntimed')?.classList.toggle('active',!timed);
   document.getElementById('homeModeTimed')?.classList.toggle('active',timed);
-  document.getElementById('timeInfo').style.display=timed?'block':'none';
-  document.getElementById('homeTimeInfo').style.display=timed?'block':'none';
+  const timeInfoEl = document.getElementById('timeInfo');
+  if (timeInfoEl) timeInfoEl.style.display = timed ? 'block' : 'none';
+  const homeTimeInfoEl = document.getElementById('homeTimeInfo');
+  if (homeTimeInfoEl) homeTimeInfoEl.style.display = timed ? 'block' : 'none';
   if(timed){
     const s=QB[state.subject];
     state.timeRemaining=s.questions.length*60;
